@@ -10,18 +10,26 @@ class UserSeeder extends Seeder
     {
         $data = [
             [
+                'email' =>   '',
+                'phone' =>   '',
                 'screen_name' =>   'reja',
                 'avatar'    => '',
             ],
             [
-                'screen_name' =>   'affan',
-                'avatar'    => '',
-            ],
-            [
+                'email' =>   '',
+                'phone' =>   '',
                 'screen_name' =>   'wildan',
                 'avatar'    => '',
             ],
             [
+                'email' =>   '',
+                'phone' =>   '',
+                'screen_name' =>   'affan',
+                'avatar'    => '',
+            ],
+            [
+                'email' =>   '',
+                'phone' =>   '',
                 'screen_name' =>   'rakha',
                 'avatar'    => '',
             ],

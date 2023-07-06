@@ -5,6 +5,8 @@ namespace App\Controllers;
 class Home extends BaseController
 {
     protected $request;
+    protected $session;
+    protected $uri;
 
     public function __construct()
     {
@@ -22,7 +24,7 @@ class Home extends BaseController
 
         $allUsers = $userModel->where('id!='.$id)->findAll();
 
-        return view('index.php', [
+        return view('home/index', [
             'user'=>$user,
             'allUsers'=>$allUsers,
         ]);

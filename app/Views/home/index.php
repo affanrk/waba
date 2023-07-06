@@ -1,4 +1,4 @@
-<?= $this->extend('layout') ?>
+<?= $this->extend('home/layout') ?>
 
 <?= $this->section('contact') ?>
     <?php foreach ($allUsers as $u): ?>
@@ -22,9 +22,9 @@
             </div>
         </div>
     <?php endforeach; ?>
-    <?= $this->endSection() ?>
+<?= $this->endSection() ?>
 
-    <?= $this->section('sidebar') ?>
+<?= $this->section('sidebar') ?>
     <div class="row searchBox">
         <div class="col-sm-12 searchBox-inner">
             <div class="form-group has-feedback">
@@ -129,7 +129,7 @@
                 var contactName = $(this).attr('user-name');
                 $('#recipientName').html(contactName);
                 $.ajax({
-                    url : "<?= site_url('Home/getRoomByUser') ?>",
+                    url : "<?= site_url('/home/getRoomByUser') ?>",
                     type: 'GET',
                     data : {
                         'contactId' : contactId,
