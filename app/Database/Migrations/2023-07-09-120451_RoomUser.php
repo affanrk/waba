@@ -21,9 +21,9 @@ class RoomUser extends Migration
                 'unsigned' => TRUE,
             ],
             'id_user' => [
-                'type' => 'INT',
-                'constraint' => 11,
-                'unsigned' => TRUE,
+                'type' => 'VARCHAR',
+                'constraint' => 100,
+                // 'unsigned' => TRUE,
             ],
         ]);
 

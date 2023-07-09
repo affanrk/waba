@@ -42,7 +42,7 @@
 						Facebook
 					</a>
 
-					<a href="#" class="btn-google m-b-20">
+					<a href="<?= $link; ?>" target="blank" class="btn-google m-b-20">
 						<img src="images/icons/icon-google.png" alt="GOOGLE">
 						Google
 					</a>

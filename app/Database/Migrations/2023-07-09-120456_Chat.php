@@ -21,12 +21,13 @@ class Chat extends Migration
                 'unsigned' => TRUE,
             ],
             'id_user' => [
-                'type' => 'INT',
-                'constraint' => 11,
-                'unsigned' => TRUE,
+                'type' => 'VARCHAR',
+                'constraint' => 100,
+                // 'unsigned' => TRUE,
             ],
             'message'=>[
                 'type'=>'TEXT',
+                'null'=>TRUE,
             ],
             'media'=>[
                 'type'=>'TEXT',
