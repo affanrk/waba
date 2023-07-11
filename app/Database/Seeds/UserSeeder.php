@@ -8,37 +8,24 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
+        date_default_timezone_set('Asia/Jakarta');
+        $currentDateTime = date("Y-m-d H:i:s");
         $data = [
             [
-                'id'    => '1',
-                'email' =>   '',
-                'phone' =>   '',
-                'screen_name' =>   'reja',
-                'profile'    => '',
+                'email'         => 'affan.kurniadi@gmail.com',
+                'phone'         => '085809094091',
+                'screen_name'   => 'affan rifqy',
+                'created_at'    => $currentDateTime,
+                'updated_at'    => $currentDateTime,
             ],
-            [
-                'id'    => '2',
-                'email' =>   '',
-                'phone' =>   '',
-                'screen_name' =>   'wildan',
-                'profile'    => '',
-            ],
-            [
-                'id'    => '3',
-                'email' =>   '',
-                'phone' =>   '',
-                'screen_name' =>   'affan',
-                'profile'    => '',
-            ],
-            [
-                'id'    => '4',
-                'email' =>   '',
-                'phone' =>   '',
-                'screen_name' =>   'rakha',
-                'profile'    => '',
-            ],
+            // [
+            //     'email' =>   'affan.kurniadi@gmail.com',
+            //     'phone' =>   '085809094091',
+            //     'screen_name' =>   'affan rifqy',
+            //     'created_at' => $currentDateTime,
+            //     'updated_at' => $currentDateTime,
+            // ]
         ];
-
         $this->db->table('user')->insertBatch($data);
     }
 }

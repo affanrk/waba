@@ -6,20 +6,21 @@ use CodeIgniter\Model;
 
 class UserModel extends Model
 {
-    protected $table            = 'user';
-    protected $primaryKey       = 'id';
-    protected $useAutoIncrement = false;
-    protected $returnType       = 'App\Entities\User';
-    protected $useSoftDeletes   = true;
-    protected $protectFields    = false;
+    protected $table = 'user';
+    protected $primaryKey = 'id';
     protected $allowedFields = [
-        'screen_name', 'profile'
+        'oauth_id', 'email', 'screen_name', 'phone'
     ];
+    protected $returnType = 'App\Entities\User';
+    protected $useTimeStamps = false;
 
-    // Dates
-    protected $useTimestamps = true;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
+    function isAlreadyRegister($authId)
+    {
+        return $this->db->table('user')->getWhere(['email' => $authId])->getRowArray()>0?true:false;
+    }
+
+    function updateUserData($userData, $authId)
+    {
+        return $this->db->table('user')->where(['email' => $authId])->update($userData);
+    }
 }

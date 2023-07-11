@@ -10,33 +10,35 @@ class User extends Migration
     {
         $this->forge->addField([
             'id' => [
-                'type' => 'VARCHAR',
-                'constraint' => 100,
-                // 'unsigned' => TRUE,
-                // 'auto_increment' => TRUE,
+                'type' => 'INT',
+                'constraint' => 11,
+                'unsigned' => TRUE,
+                'auto_increment' => TRUE,
             ],
             'email'=>[
                 'type' => 'VARCHAR',
                 'constraint' => 255,
-                'null' => TRUE,
             ],
             'phone'=>[
                 'type' => 'VARCHAR',
                 'constraint' => 20,
-                'null' => TRUE,
-                // 'rules' => 'regex_match[/^[0-9]+$/]',
+                'rules' => 'regex_match[/^[0-9]+$/]',
             ],
             'screen_name'=>[
                 'type' => 'TEXT',
                 'null' => TRUE,
             ],
-            'profile'=>[
-                'type' => 'TEXT',
-                'null' => TRUE,
+            'created_at'=>[
+                'type' => 'DATETIME',
+            ],
+            'updated_at'=>[
+                'type' => 'DATETIME',
             ]
         ]);
 
         $this->forge->addKey('id', TRUE);
+        $this->forge->addUniqueKey('email');
+        $this->forge->addUniqueKey('phone');
         $this->forge->createTable('user');
     }
     
