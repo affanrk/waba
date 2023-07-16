@@ -9,7 +9,7 @@ class UserModel extends Model
     protected $table = 'user';
     protected $primaryKey = 'id';
     protected $allowedFields = [
-        'oauth_id', 'email', 'screen_name', 'phone'
+        'email', 'screen_name', 'phone'
     ];
     protected $returnType = 'App\Entities\User';
     protected $useTimeStamps = false;
@@ -23,4 +23,16 @@ class UserModel extends Model
     {
         return $this->db->table('user')->where(['email' => $authId])->update($userData);
     }
+
+    function getId($email)
+    {
+        $query = $this->db->table('user')->select('id')->where('email', $email)->get()->getRow();
+    
+        if ($query) {
+            return $query->id;
+        } else {
+            return null; 
+        }
+    }
+    
 }

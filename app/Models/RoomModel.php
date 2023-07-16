@@ -57,7 +57,7 @@ class RoomModel extends Model
             return $this->db->table($this->table)->where('id', $idRoom)->get()->getRow();
         }
         
-        $room = $this->db->table($this->table)->where('id', $roomUserCheck->id)->get()->getRow();
+        $room = $this->db->table($this->table)->where('id', $roomUserCheck->roomId)->get()->getRow();
         
         return $room;
                         

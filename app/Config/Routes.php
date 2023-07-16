@@ -11,7 +11,7 @@ $routes = Services::routes();
  * --------------------------------------------------------------------
  */
 $routes->setDefaultNamespace('App\Controllers');
-$routes->setDefaultController('Home');
+$routes->setDefaultController('Login');
 $routes->setDefaultMethod('index');
 $routes->setTranslateURIDashes(false);
 $routes->set404Override();
@@ -29,10 +29,14 @@ $routes->set404Override();
 
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
-$routes->get('/', 'Home::index');
-$routes->get('/home', 'Home::home');
-$routes->get('/login', 'Home::loginWithGoogle');
-$routes->get('/home/getRoomByUser', 'Home::getRoomByUser');
+$routes->get('/', 'Login::index');
+$routes->get('/login', 'Login::loginWithGoogle');
+$routes->get('/home/user/(:segment)', 'Home::index');
+$routes->get('/home/makeRoom', 'Home::makeRoom');
+$routes->get('/home/getChats', 'Home::getChats');
+
+$routes->post('/home/user/(:num)', 'Home::sendMessage');
+// $routes->post('/home/sendMessage', 'Home::sendMessage');
 
 /*
  * --------------------------------------------------------------------
