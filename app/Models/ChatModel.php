@@ -14,7 +14,7 @@ class ChatModel extends Model
     protected $returnType = 'App\Entities\Chat';
     protected $useTimeStamps = false;
 
-    public function getChatsByRoom($idRoom)
+    function getChatsByRoom($idRoom)
     {
         $chats = $this->db->table($this->table)->where('id_room', $idRoom)->get()->getResult();
         return $chats;

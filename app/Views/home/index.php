@@ -2,7 +2,7 @@
 
 <?= $this->section('contact') ?>
 <?php foreach ($allUsers as $u) : ?>
-    <div class="row sideBar-body contact" user-id=<?= $u->id ?> user-name='<?= $u->phone ?> (<?= $u->screen_name ?>)'>
+    <div class="row sideBar-body contact" user-id='<?= htmlspecialchars($u->encryptedId) ?>' user-name='<?= $u->phone ?> (<?=$u->screen_name?>)'>
         <div class="col-sm-3 col-xs-3 sideBar-avatar">
             <div class="avatar-icon">
                 <img src="https://bootdey.com/img/Content/avatar/avatar1.png">
@@ -64,7 +64,7 @@
         </div>
     </div>
     <div class="col-sm-8 col-xs-7 heading-name">
-        <a class="heading-name-meta" id="recipientName">John Doe
+        <a class="heading-name-meta" id="recipientName"> Siapa aja boleh
         </a>
         <span class="heading-online">Online</span>
     </div>
@@ -101,24 +101,51 @@
 <script type="text/javascript">
     $(document).ready(function() {
         var roomId;
+        var $comment = $('#comment');
+        var $sendButton = $('#send-message');
+
+        $sendButton.addClass('disabled');
+
+        function isBase64(str) {
+            try {
+                return btoa(atob(str)) === str;
+            } catch (err) {
+                return false;
+            }
+        }
+
+        function decryptUserId(encryptedId) {
+            return isBase64(encryptedId) ? atob(encryptedId) : null;
+        }
+
+        function extractTime(timestamp) {
+            const time = new Date(timestamp);
+
+            const dayOfWeek = time.toLocaleString('en-US', { weekday: 'short' });
+            const hours = time.getHours().toString().padStart(2, '0');
+            const minutes = time.getMinutes().toString().padStart(2, '0');
+
+            return `${dayOfWeek}, ${hours}:${minutes}`;
+        }
 
         $('.contact').on('click', function() {
             var contactId = $(this).attr('user-id');
             var contactName = $(this).attr('user-name');
+            var decryptedUserId = decryptUserId(contactId);
+        
             $('#conversation').html('');
             $('#recipientName').html(contactName);
-
+            
             $.ajax({
-                url: "<?= site_url('home/makeRoom') ?>",
+                url: "<?= site_url('home/createRoom') ?>",
                 type: 'GET',
                 data: {
-                    'contactId': contactId
+                    'contactId': decryptedUserId
                 },
                 dataType: 'json',
                 success: function(data) {
                     console.log(data);
                     roomId = data.id;
-                    // console.log(roomId);
                     getChats();
                 }
             });
@@ -140,6 +167,7 @@
                         var message = data[i].message;
                         var created_at = data[i].created_at;
                         var id_user = data[i].id_user;
+                        var time = extractTime(data[i].created_at);
                         var template = null;
                         if(id_user == <?= $idUser ?>)
                         {
@@ -150,7 +178,7 @@
                                                         `+message+`
                                                     </div>
                                                     <span class="message-time pull-right">
-                                                        Sun
+                                                        `+time+`
                                                     </span>
                                                 </div>
                                             </div>
@@ -163,7 +191,7 @@
                                                         `+message+`
                                                     </div>
                                                     <span class="message-time pull-right">
-                                                        Sun
+                                                        `+time+`
                                                     </span>
                                                 </div>
                                             </div>
@@ -172,16 +200,27 @@
                         $('#conversation').append(template);
                         $('#conversation').scrollTop($('#conversation')[0].scrollHeight);
                     }
-                    // roomId = data.id;
-                    // console.log(roomId);
                 }
             });
         }
 
-        $('#send-message').on('click', function() {
-            var message = $('#comment').val();
-            $('#comment').val('');
+        function toggleSendButton() {
+            if ($comment.val().trim().length > 0) {
+                $sendButton.removeClass('disabled');
+            } else {
+                $sendButton.addClass('disabled');
+            }
+        }
+        
+        $comment.on('input', function() {
+            toggleSendButton();
+        });
+        
+        $sendButton.on('click', function() {
+            var message = $comment.val().trim();
+            $comment.val('');
             sendMessage(message);
+            $sendButton.addClass('disabled');
         });
 
         function sendMessage(message) {
@@ -195,6 +234,8 @@
                 dataType: 'json',
                 success: function(data) {
                     console.log(data);
+                    const currentTimestamp = new Date();
+                    const currentTimeFormatted = extractTime(currentTimestamp);
                     var template = `<div class="row message-body">
                                         <div class="col-sm-12 message-main-sender">
                                             <div class="sender">
@@ -202,7 +243,7 @@
                                                     `+data.message+`
                                                 </div>
                                                 <span class="message-time pull-right">
-                                                    Sun
+                                                    `+currentTimeFormatted+`
                                                 </span>
                                             </div>
                                         </div>

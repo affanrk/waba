@@ -4,8 +4,7 @@
 <head>
   <meta charset="utf-8">
 
-
-  <title>Whatsapp web chat template - Bootdey.com</title>
+  <title>Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
   <style type="text/css">
@@ -414,6 +413,11 @@
       text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
       display: inline-block;
       word-wrap: break-word;
+    }
+    
+    #send-message.disabled {
+      opacity: 0.5; /* Mengurangi kecerahan tombol ketika nonaktif */
+      pointer-events: none; /* Menonaktifkan interaksi dengan tombol */
     }
 
 

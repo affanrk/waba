@@ -3,24 +3,19 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-
 use Google_Client;
 
-class Login extends BaseController
+class Auth extends BaseController
 {
     protected $request;
     protected $session;
-    protected $uri;
     protected $googleClient;
     protected $user;
-    protected $roomModel;
     
-    public function __construct()
+    function __construct()
     {
         $this->session = \Config\Services::session();
-        $this->uri =  service('uri');  
         $this->user = new \App\Models\UserModel();
-        $this->roomModel = new \App\Models\RoomModel();
         $this->googleClient = new Google_Client();
         
         $this->googleClient->setClientId('408926188996-5q0ituekcge81jcql8spjc2m0g8a7u8s.apps.googleusercontent.com');
@@ -36,7 +31,7 @@ class Login extends BaseController
         return view('login/index', $data);
     }
 
-    public function loginWithGoogle()
+    public function login()
     {
         $token = $this->googleClient->fetchAccessTokenWithAuthCode($this->request->getVar('code'));
         
@@ -59,6 +54,8 @@ class Login extends BaseController
                     'updated_at'    => $currentDateTime
                 ];
                 $this->user->updateUserData($userData, $data['email']);
+                $id = $this->user->getId($userData['email']);
+                session()->set('idUser', $id);
             }
             else
             {
@@ -71,9 +68,7 @@ class Login extends BaseController
             session()->setFlashData('error', "Something went Wrong");
             return redirect()->to(base_url());
         }
-        $id = $this->user->getId($userData['email']);
-        // $this->session->set('idUser', $id);
 
-        return redirect()->to(base_url()."home/user/" . $id);
+        return redirect()->to(base_url()."home");
     }
 }
