@@ -31,9 +31,10 @@ $routes->set404Override();
 // route since we don't have to scan directories.
 $routes->get('/', 'Auth::index');
 $routes->get('/login', 'Auth::login');
+$routes->get('/logout', 'Auth::logout');
 $routes->get('/home', 'Home::index');
-$routes->get('/home/createRoom', 'Home::createRoom');
-$routes->get('/home/getChats', 'Home::getChats');
+$routes->get('/home/getRoom', 'Home::getRoomByUser');
+$routes->get('/home/getChats', 'Home::getChatsByRoom');
 
 $routes->post('/home', 'Home::sendMessage');
 // $routes->post('/home/sendMessage', 'Home::sendMessage');

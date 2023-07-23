@@ -31,7 +31,7 @@ class Home extends Auth
         ]);
     }    
 
-    function createRoom()
+    function getRoomByUser()
     {
         if ($this->request->isAJAX()) {
             $idCurrentUser = session()->get('idUser');
@@ -40,6 +40,20 @@ class Home extends Auth
             $room = $this->roomModel->getRoomByUser([$idCurrentUser, $idReceiver]);
 
             return $this->response->setJSON($room);
+        }
+    }
+    
+    function getChatsByRoom()
+    {
+        if ($this->request->isAJAX())
+        {
+            $id_room = $this->request->getGet('roomId');
+
+            $chatModel = new \App\Models\ChatModel();
+
+            $chats = $chatModel->getChatsByRoom($id_room);
+
+            return $this->response->setJSON($chats);
         }
     }
 
@@ -74,18 +88,5 @@ class Home extends Auth
         }
     }
 
-    function getChats()
-    {
-        if ($this->request->isAJAX())
-        {
-            $id_room = $this->request->getGet('roomId');
-
-            $chatModel = new \App\Models\ChatModel();
-
-            $chats = $chatModel->getChatsByRoom($id_room);
-
-            return $this->response->setJSON($chats);
-        }
-    }
     
 }
