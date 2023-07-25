@@ -122,6 +122,7 @@
     <script type="text/javascript">
         $(document).ready(function() {
             var roomId;
+            var currentContactId = null;
             var $comment = $('#comment');
             var $sendButton = $('#send-message');
 
@@ -155,6 +156,12 @@
                 var contactId = $(this).attr('user-id');
                 var contactName = $(this).attr('user-name');
                 var decryptedUserId = decryptUserId(contactId);
+
+                if (currentContactId === decryptedUserId) {
+                    return;
+                }
+
+                currentContactId = decryptedUserId;
 
                 $('#conversation').html('');
                 $('#recipientName').html(contactName);
