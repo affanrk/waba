@@ -36,8 +36,9 @@ $routes->get('/home', 'Home::index');
 $routes->get('/home/getRoom', 'Home::getRoomByUser');
 $routes->get('/home/getChats', 'Home::getChatsByRoom');
 
+// $routes->post('/home', 'Home::sendMessage');
 $routes->post('/home', 'Home::sendMessage');
-// $routes->post('/home/sendMessage', 'Home::sendMessage');
+$routes->post('/home/decrypt', 'Home::decryptUserId');
 
 /*
  * --------------------------------------------------------------------

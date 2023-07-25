@@ -6,11 +6,13 @@ class Home extends Auth
 {
     protected $roomModel;
     protected $user;
+    protected $encrypter;
     
     function __construct()
     {
         parent::__construct();
         $this->roomModel = new \App\Models\RoomModel();
+        $this->encrypter = \Config\Services::encrypter();
     }
 
     public function index()
@@ -20,16 +22,28 @@ class Home extends Auth
         $user = $this->user->find($id);
         $allUsers = $this->user->where('id!='.$id)->findAll();
     
-        foreach ($allUsers as &$u) {
-            $u->encryptedId = base64_encode($u->id);
+        foreach ($allUsers as $u) {
+            $u->encryptedId = base64_encode($this->encrypter->encrypt($u->id));
         }
+
+        // foreach ($allUsers as &$u) {
+        //     $u->encryptedId = base64_encode($u->id);
+        // }
     
         return view('home/index', [
             'user' => $user,
             'allUsers' => $allUsers,
             'idUser' => $id,
         ]);
-    }    
+    }  
+    
+    function decryptUserId()
+    {
+        $encryptedId = $this->request->getPost('encryptedId');
+        $decryptedId = $this->encrypter->decrypt(base64_decode($encryptedId));
+
+        return $this->response->setJSON(['decryptedId' => $decryptedId]);
+    }
 
     function getRoomByUser()
     {

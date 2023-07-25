@@ -119,25 +119,40 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             var roomId;
             var currentContactId = null;
+            var decryptedUserIdCache = {};
             var $comment = $('#comment');
             var $sendButton = $('#send-message');
 
             $sendButton.addClass('disabled');
 
-            function isBase64(str) {
-                try {
-                    return btoa(atob(str)) === str;
-                } catch (err) {
-                    return false;
-                }
-            }
+            // function isBase64(str) {
+            //     try {
+            //         return btoa(atob(str)) === str;
+            //     } catch (err) {
+            //         return false;
+            //     }
+            // }
+
+            // function decryptUserId(encryptedId) {
+            //     return isBase64(encryptedId) ? atob(encryptedId) : null;
+            // }
 
             function decryptUserId(encryptedId) {
-                return isBase64(encryptedId) ? atob(encryptedId) : null;
+                if (decryptedUserIdCache.hasOwnProperty(encryptedId)) {
+                    return Promise.resolve(decryptedUserIdCache[encryptedId]);
+                }
+                return $.ajax({
+                    url: '<?= site_url('home/decrypt') ?>',
+                    type: 'POST',
+                    data: {encryptedId: encryptedId},
+                    dataType: 'json',
+                    async: false
+                }).responseJSON.decryptedId;
             }
 
             function extractTime(timestamp) {
@@ -151,36 +166,7 @@
 
                 return `${dayOfWeek}, ${hours}:${minutes}`;
             }
-
-            $('.contact').on('click', function() {
-                var contactId = $(this).attr('user-id');
-                var contactName = $(this).attr('user-name');
-                var decryptedUserId = decryptUserId(contactId);
-
-                if (currentContactId === decryptedUserId) {
-                    return;
-                }
-
-                currentContactId = decryptedUserId;
-
-                $('#conversation').html('');
-                $('#recipientName').html(contactName);
-
-                $.ajax({
-                    url: "<?= site_url('home/getRoom') ?>",
-                    type: 'GET',
-                    data: {
-                        'contactId': decryptedUserId
-                    },
-                    dataType: 'json',
-                    success: function(data) {
-                        console.log(data);
-                        roomId = data.id;
-                        getChats();
-                    }
-                });
-            });
-
+            
             function getChats() {
                 $.ajax({
                     url: "<?= site_url('home/getChats') ?>",
@@ -190,7 +176,7 @@
                     },
                     dataType: 'json',
                     success: function(data) {
-                        console.log(data);
+                        // console.log(data);
                         for (var i = 0; i < data.length; i++) {
                             var message = data[i].message;
                             var created_at = data[i].created_at;
@@ -231,23 +217,34 @@
                 });
             }
 
-            function toggleSendButton() {
-                if ($comment.val().trim().length > 0) {
-                    $sendButton.removeClass('disabled');
-                } else {
-                    $sendButton.addClass('disabled');
+            $('.contact').on('click', function() {
+                var contactId = $(this).attr('user-id');
+                var contactName = $(this).attr('user-name');
+                var decryptedUserId = decryptUserId(contactId);
+                // console.log(decryptedUserId);
+
+                if (currentContactId === decryptedUserId) {
+                    return;
                 }
-            }
 
-            $comment.on('input', function() {
-                toggleSendButton();
-            });
+                currentContactId = decryptedUserId;
 
-            $sendButton.on('click', function() {
-                var message = $comment.val().trim();
-                $comment.val('');
-                sendMessage(message);
-                $sendButton.addClass('disabled');
+                $('#conversation').html('');
+                $('#recipientName').html(contactName);
+
+                $.ajax({
+                    url: "<?= site_url('home/getRoom') ?>",
+                    type: 'GET',
+                    data: {
+                        'contactId': decryptedUserId
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        // console.log(data);
+                        roomId = data.id;
+                        getChats();
+                    }
+                });
             });
 
             function sendMessage(message) {
@@ -260,7 +257,7 @@
                     },
                     dataType: 'json',
                     success: function(data) {
-                        console.log(data);
+                        // console.log(data);
                         const currentTimestamp = new Date();
                         const currentTimeFormatted = extractTime(currentTimestamp);
                         var template = `<div class="row message-body">
@@ -279,6 +276,26 @@
                     }
                 });
             }
+
+            $sendButton.on('click', function() {
+                var message = $comment.val().trim();
+                $comment.val('');
+                sendMessage(message);
+                $sendButton.addClass('disabled');
+            });
+
+            function toggleSendButton() {
+                if ($comment.val().trim().length > 0) {
+                    $sendButton.removeClass('disabled');
+                } else {
+                    $sendButton.addClass('disabled');
+                }
+            }
+
+            $comment.on('input', function() {
+                toggleSendButton();
+            });
+
         });
     </script>
 <?= $this->endSection('script') ?>
