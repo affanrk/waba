@@ -121,10 +121,10 @@
 <?= $this->section('script') ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script type="text/javascript">
-        $(document).ready(function() {
+        (function() {
             var roomId;
             var currentContactId = null;
-            var decryptedUserIdCache = {};
+            var dCache = {};
             var $comment = $('#comment');
             var $sendButton = $('#send-message');
 
@@ -142,9 +142,9 @@
             //     return isBase64(encryptedId) ? atob(encryptedId) : null;
             // }
 
-            function decryptUserId(encryptedId) {
-                if (decryptedUserIdCache.hasOwnProperty(encryptedId)) {
-                    return Promise.resolve(decryptedUserIdCache[encryptedId]);
+            function decr(encryptedId) {
+                if (dCache.hasOwnProperty(encryptedId)) {
+                    return Promise.resolve(dCache[encryptedId]);
                 }
                 return $.ajax({
                     url: '<?= site_url('home/decrypt') ?>',
@@ -218,25 +218,25 @@
             }
 
             $('.contact').on('click', function() {
-                var contactId = $(this).attr('user-id');
-                var contactName = $(this).attr('user-name');
-                var decryptedUserId = decryptUserId(contactId);
+                var cId = $(this).attr('user-id');
+                var cName = $(this).attr('user-name');
+                var decUserId = decr(cId);
                 // console.log(decryptedUserId);
 
-                if (currentContactId === decryptedUserId) {
+                if (currentContactId === decUserId) {
                     return;
                 }
 
-                currentContactId = decryptedUserId;
+                currentContactId = decUserId;
 
                 $('#conversation').html('');
-                $('#recipientName').html(contactName);
+                $('#recipientName').html(cName);
 
                 $.ajax({
                     url: "<?= site_url('home/getRoom') ?>",
                     type: 'GET',
                     data: {
-                        'contactId': decryptedUserId
+                        'contactId': decUserId
                     },
                     dataType: 'json',
                     success: function(data) {
@@ -247,7 +247,7 @@
                 });
             });
 
-            function sendMessage(message) {
+            function sendMsg(message) {
                 $.ajax({
                     url: "<?php site_url('home/sendMessage'); ?>",
                     type: 'POST',
@@ -280,11 +280,11 @@
             $sendButton.on('click', function() {
                 var message = $comment.val().trim();
                 $comment.val('');
-                sendMessage(message);
+                sendMsg(message);
                 $sendButton.addClass('disabled');
             });
 
-            function toggleSendButton() {
+            function toggleBtn() {
                 if ($comment.val().trim().length > 0) {
                     $sendButton.removeClass('disabled');
                 } else {
@@ -293,9 +293,9 @@
             }
 
             $comment.on('input', function() {
-                toggleSendButton();
+                toggleBtn();
             });
 
-        });
+        })();
     </script>
 <?= $this->endSection('script') ?>
