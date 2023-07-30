@@ -56,6 +56,50 @@
     <?php endforeach; ?>
 <?= $this->endSection() ?>
 
+<?= $this->section('conversationMobile') ?>
+    <div class="row heading">
+        <div class="col-sm-1 col-xs-1 chevron" id="backButtonMobile">
+            <i class="fa fa-chevron-left fa-2x" aria-hidden="true"></i>
+        </div>
+        <div class="col-sm-2 col-md-1 col-xs-3 heading-avatar">
+            <div class="heading-avatar-icon text-center">
+                <img src="https://bootdey.com/img/Content/avatar/avatar6.png">
+            </div>
+        </div>
+        <div class="col-sm-7 col-xs-6 heading-name">
+            <a class="heading-name-meta" id="recipientNameMobile"> Siapa aja boleh
+            </a>
+            <span class="heading-online">Online</span>
+        </div>
+        <div class="col-sm-1 col-xs-1  heading-dot pull-right">
+            <i class="fa fa-ellipsis-v fa-2x  pull-right" aria-hidden="true"></i>
+        </div>
+    </div>
+    <div class="row message" id="messageMobile">
+        <!-- <div class="row message-previous">
+                    <div class="col-sm-12 previous">
+                        <a onclick="previous(this)" id="ankitjain28" name="20">
+                            Show Previous Message!
+                        </a>
+                    </div>
+                </div> -->
+    </div>
+    <div class="row reply">
+        <div class="col-sm-1 col-xs-1 reply-emojis">
+            <i class="fa fa-smile-o fa-2x"></i>
+        </div>
+        <div class="col-sm-9 col-xs-9 reply-main">
+            <textarea class="form-control" rows="1" id="commentMobile"></textarea>
+        </div>
+        <div class="col-sm-1 col-xs-1 reply-recording">
+            <i class="fa fa-microphone fa-2x" aria-hidden="true"></i>
+        </div>
+        <div class="col-sm-1 col-xs-1 reply-send" id='sendMobile'>
+            <i class="fa fa-send fa-2x" aria-hidden="true"></i>
+        </div>
+    </div>
+<?= $this->endSection() ?>
+
 <?= $this->section('conversation') ?>
     <div class="row heading">
         <div class="col-sm-2 col-md-1 col-xs-3 heading-avatar">
@@ -130,6 +174,7 @@
             var dCache = {};
             var $comment = $('#comment');
             var $sendButton = $('#send-message');
+            var mobileBox = document.getElementById('mobileConversation')
 
             $sendButton.addClass('disabled');
 
@@ -214,7 +259,9 @@
                                             </div>`
                             }
                             $('#conversation').append(template);
+                            $('#messageMobile').append(template);
                             $('#conversation').scrollTop($('#conversation')[0].scrollHeight);
+                            $('#messageMobile').scrollTop($('#messageMobile')[0].scrollHeight);
                         }
                     }
                 });
@@ -225,6 +272,9 @@
                 var cName = $(this).attr('user-name');
                 var decUserId = decr(cId);
                 // console.log(decryptedUserId);
+                if(window.innerWidth <= 700){
+                    mobileBox.style.display = 'block';
+                }
 
                 if (currentContactId === decUserId) {
                     return;
@@ -234,6 +284,8 @@
 
                 $('#conversation').html('');
                 $('#recipientName').html(cName);
+                $('#recipientNameMobile').html(cName);
+                $('#messageMobile').html('');
 
                 $.ajax({
                     url: "<?= site_url('home/getRoom') ?>",
@@ -276,6 +328,7 @@
                                             </div>
                                         </div>`;
                         $('#conversation').append(template);
+                        $('#messageMobile').append(template);
                     }
                 });
             }
@@ -287,8 +340,21 @@
                 $sendButton.addClass('disabled');
             });
 
+            $('#backButtonMobile').on('click', function() {
+                if(window.innerWidth <= 700){
+                    mobileBox.style.display = 'none';
+                }
+            })
+
+            $('#sendMobile').on('click', function() {
+                var message = $('#commentMobile').val().trim();
+                $('#commentMobile').val('');
+                sendMsg(message);
+                $('#sendMobile').addClass('disabled');
+            })
+
             function toggleBtn() {
-                if ($comment.val().trim().length > 0) {
+                if ($comment.val().tssrim().length > 0) {
                     $sendButton.removeClass('disabled');
                 } else {
                     $sendButton.addClass('disabled');
@@ -298,6 +364,13 @@
             $comment.on('input', function() {
                 toggleBtn();
             });
+            $('#commentMobile').on('input', function() {
+                if ($('#commentMobile').val().tssrim().length > 0) {
+                    $('#sendMobile').removeClass('disabled');
+                } else {
+                    $('#sendMobile').addClass('disabled');
+                }
+            })
 
         })();
     </script>

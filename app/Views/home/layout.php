@@ -47,6 +47,7 @@
       margin: 0;
       padding: 0;
       box-shadow: 0 1px 1px 0 rgba(0, 0, 0, .06), 0 2px 5px 0 rgba(0, 0, 0, .2);
+      position: relative;
     }
 
     .side {
@@ -105,6 +106,8 @@
     .heading-name {
       padding: 0 !important;
       cursor: pointer;
+      display: flex;
+      align-items: center;
     }
 
     .heading-name-meta {
@@ -115,7 +118,7 @@
       text-align: left;
       text-overflow: ellipsis;
       white-space: nowrap;
-      color: #000;
+      color: black;
       display: block;
     }
 
@@ -326,6 +329,7 @@
       /*width: 100%;*/
       border-left: 1px solid rgba(0, 0, 0, .08);
       /*overflow-y: auto;*/
+      position: relative;
     }
 
     .message {
@@ -495,6 +499,10 @@
         height: 100%;
       }
 
+      .heading-name-meta{
+        color: white;
+      }
+
       .heading {
         height: 70px;
         background-color: #009688;
@@ -635,6 +643,27 @@
       }
     }
 
+    .chevron i{
+      color: white;
+      cursor: pointer;
+      align-items: center;
+    }
+    .chevron{
+      display: flex;
+      align-items: center;
+      margin-left: -15px;
+    }
+
+    .mobileBox {
+      display: none;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      z-index: 100;
+    }
   </style>
 </head>
 
@@ -667,7 +696,7 @@
             </div>
           </div>
           <div class="row compose-sideBar">
-            <!-- <?= $this->renderSection('contact') ?> -->
+            <?= $this->renderSection('contact') ?>
           </div>
         </div>
       </div>
@@ -675,6 +704,9 @@
         <?= $this->renderSection('conversation') ?>
       </div>
     </div>
+  </div>
+  <div class="mobileBox" id="mobileConversation">
+    <?= $this->renderSection('conversationMobile') ?>
   </div>
   <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
   <script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
