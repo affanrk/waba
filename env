@@ -89,7 +89,7 @@ database.default.DBDriver = MySQLi
 # ENCRYPTION
 #--------------------------------------------------------------------
 
-# encryption.key =
+encryption.key = hex2bin:fccbf889675e5f08f77d02648eaa06b1fc9a7e3582adc8904d89fe4f0214496e
 # encryption.driver = OpenSSL
 # encryption.blockSize = 16
 # encryption.digest = SHA512
