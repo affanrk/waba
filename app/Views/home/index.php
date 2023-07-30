@@ -12,26 +12,28 @@
                 Logout
             </a>
         </div>
-        <div class="col-sm-1 col-xs-1  heading-dot  pull-right">
+        <!-- <div class="col-sm-1 col-xs-1  heading-dot  pull-right">
             <i class="fa fa-ellipsis-v fa-2x  pull-right" aria-hidden="true"></i>
         </div>
         <div class="col-sm-2 col-xs-2 heading-compose  pull-right">
             <i class="fa fa-comments fa-2x  pull-right" aria-hidden="true"></i>
-        </div>
+        </div> -->
     </div>
 <?= $this->endSection() ?>
 
 <?= $this->section('sidebar') ?>
-    <div class="row searchBox">
+
+    <!-- <div class="row searchBox">
         <div class="col-sm-12 searchBox-inner">
             <div class="form-group has-feedback">
                 <input id="searchText" type="text" class="form-control" name="searchText" placeholder="Search">
                 <span class="glyphicon glyphicon-search form-control-feedback"></span>
             </div>
         </div>
-    </div>
+    </div> -->
+    <?php foreach ($allUsers as $u) : ?>
     <div class="row sideBar">
-        <div class="row sideBar-body">
+        <div class="row sideBar-body listChat" user-id='<?= htmlspecialchars($u->encryptedId) ?>' user-name='<?= $u->phone ?> (<?= $u->screen_name ?>)'>
             <div class="col-sm-3 col-xs-3 sideBar-avatar">
                 <div class="avatar-icon">
                     <img src="https://bootdey.com/img/Content/avatar/avatar1.png">
@@ -40,7 +42,7 @@
             <div class="col-sm-9 col-xs-9 sideBar-main">
                 <div class="row">
                     <div class="col-sm-8 col-xs-8 sideBar-name">
-                        <span class="name-meta">John Doe
+                        <span class="name-meta"><?= $u->phone ?> (<?= $u->screen_name ?>)
                         </span>
                     </div>
                     <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
@@ -51,6 +53,7 @@
             </div>
         </div>
     </div>
+    <?php endforeach; ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('conversation') ?>
@@ -94,7 +97,7 @@
     </div>
 <?= $this->endSection() ?>
 
-<?= $this->section('contact') ?>
+<!-- <?= $this->section('contact') ?>
 <?php foreach ($allUsers as $u) : ?>
     <div class="row sideBar-body contact" user-id='<?= htmlspecialchars($u->encryptedId) ?>' user-name='<?= $u->phone ?> (<?= $u->screen_name ?>)'>
         <div class="col-sm-3 col-xs-3 sideBar-avatar">
@@ -116,7 +119,7 @@
         </div>
     </div>
 <?php endforeach; ?>
-<?= $this->endSection() ?>
+<?= $this->endSection() ?> -->
 
 <?= $this->section('script') ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
@@ -217,7 +220,7 @@
                 });
             }
 
-            $('.contact').on('click', function() {
+            $('.listChat').on('click', function() {
                 var cId = $(this).attr('user-id');
                 var cName = $(this).attr('user-name');
                 var decUserId = decr(cId);

@@ -667,7 +667,7 @@
             </div>
           </div>
           <div class="row compose-sideBar">
-            <?= $this->renderSection('contact') ?>
+            <!-- <?= $this->renderSection('contact') ?> -->
           </div>
         </div>
       </div>
