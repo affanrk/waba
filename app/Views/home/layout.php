@@ -425,6 +425,11 @@
       pointer-events: none;
     }
 
+    #sendMobile.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
     /*Reply*/
 
     .reply {

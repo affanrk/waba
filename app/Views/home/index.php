@@ -174,10 +174,13 @@
             var currentContactId = null;
             var dCache = {};
             var $comment = $('#comment');
+            var $commentMobile = $('#commentMobile');
             var $sendButton = $('#send-message');
+            var $sendButtonMobile = $('#sendMobile');
             var mobileBox = document.getElementById('mobileConversation')
 
             $sendButton.addClass('disabled');
+            $sendButtonMobile.addClass('disabled');
 
             // function isBase64(str) {
             //     try {
@@ -331,6 +334,7 @@
                         $('#conversation').append(template);
                         $('#messageMobile').append(template);
                         $('#conversation').scrollTop($('#conversation')[0].scrollHeight);
+                        $('#messageMobile').scrollTop($('#messageMobile')[0].scrollHeight);
                     }
                 });
             }
@@ -341,36 +345,41 @@
                 sendMsg(message);
                 $sendButton.addClass('disabled');
             });
-
-            $('#backButtonMobile').on('click', function() {
-                if(window.innerWidth <= 700){
-                    mobileBox.style.display = 'none';
-                }
-            })
-
-            $('#sendMobile').on('click', function() {
-                var message = $('#commentMobile').val().trim();
-                $('#commentMobile').val('');
+            
+            $sendButtonMobile.on('click', function() {
+                var message = $commentMobile.val().trim();
+                $commentMobile.val('');
                 sendMsg(message);
-                $('#sendMobile').addClass('disabled');
+                $sendButtonMobile.addClass('disabled');
             })
 
             function toggleBtn() {
-                if ($comment.val().tssrim().length > 0) {
+                if ($comment.val().trim().length > 0) {
                     $sendButton.removeClass('disabled');
                 } else {
                     $sendButton.addClass('disabled');
                 }
             }
 
+            function toggleBtnMobile() {
+                if ($commentMobile.val().trim().length > 0) {
+                    $sendButtonMobile.removeClass('disabled');
+                } else {
+                    $sendButtonMobile.addClass('disabled');
+                }
+            }
+
             $comment.on('input', function() {
                 toggleBtn();
             });
-            $('#commentMobile').on('input', function() {
-                if ($('#commentMobile').val().tssrim().length > 0) {
-                    $('#sendMobile').removeClass('disabled');
-                } else {
-                    $('#sendMobile').addClass('disabled');
+
+            $commentMobile.on('input', function() {
+                toggleBtnMobile();
+            });
+
+            $('#backButtonMobile').on('click', function() {
+                if(window.innerWidth <= 700){
+                    mobileBox.style.display = 'none';
                 }
             })
 
