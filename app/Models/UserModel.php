@@ -16,20 +16,28 @@ class UserModel extends Model
 
     function isAlreadyRegister($authId)
     {
-        return $this->db->table('user')->getWhere(['email' => $authId])->getRowArray()>0?true:false;
+        return $this->db->table('user')
+            ->getWhere(['email' => $authId])
+            ->getRowArray()>0?true:false;
     }
 
     function updateUserData($userData, $authId)
     {
-        return $this->db->table('user')->where(['email' => $authId])->update($userData);
+        return $this->db->table('user')
+            ->where(['email' => $authId])
+            ->update($userData);
     }
 
     function getId($email)
     {
-        $query = $this->db->table('user')->select('id')->where('email', $email)->get()->getRow();
+        $query = $this->db->table('user')
+            ->select('id')->where('email', $email)
+            ->get();
+        
+        $user = $query->getRow();
     
-        if ($query) {
-            return $query->id;
+        if ($user) {
+            return $user->id;
         } else {
             return null; 
         }

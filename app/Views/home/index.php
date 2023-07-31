@@ -22,7 +22,6 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('sidebar') ?>
-
     <!-- <div class="row searchBox">
         <div class="col-sm-12 searchBox-inner">
             <div class="form-group has-feedback">
@@ -42,11 +41,13 @@
             <div class="col-sm-9 col-xs-9 sideBar-main">
                 <div class="row">
                     <div class="col-sm-8 col-xs-8 sideBar-name">
-                        <span class="name-meta"><?= $u->phone ?> (<?= $u->screen_name ?>)
+                        <span class="name-meta">
+                            <?= $u->phone ?> (<?= $u->screen_name ?>)
                         </span>
                     </div>
                     <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
-                        <span class="time-meta pull-right">18:18
+                        <span class="time-meta pull-right" id="lastTime">  
+                            <!--  -->
                         </span>
                     </div>
                 </div>
@@ -130,6 +131,7 @@
             var dCache = {};
             var $comment = $('#comment');
             var $sendButton = $('#send-message');
+            var lastChatTimes = {};
 
             $sendButton.addClass('disabled');
 
@@ -169,7 +171,7 @@
 
                 return `${dayOfWeek}, ${hours}:${minutes}`;
             }
-            
+
             function getChats() {
                 $.ajax({
                     url: "<?= site_url('home/getChats') ?>",
@@ -224,7 +226,7 @@
                 var cId = $(this).attr('user-id');
                 var cName = $(this).attr('user-name');
                 var decUserId = decr(cId);
-                // console.log(decryptedUserId);
+                // console.log(decUserId);
 
                 if (currentContactId === decUserId) {
                     return;
@@ -276,6 +278,7 @@
                                             </div>
                                         </div>`;
                         $('#conversation').append(template);
+                        $('#conversation').scrollTop($('#conversation')[0].scrollHeight);
                     }
                 });
             }
@@ -298,6 +301,10 @@
             $comment.on('input', function() {
                 toggleBtn();
             });
+
+            function getLastChatTimes() {
+                //
+            }
 
         })();
     </script>

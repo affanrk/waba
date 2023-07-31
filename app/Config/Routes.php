@@ -29,16 +29,17 @@ $routes->set404Override();
 
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
-$routes->get('/', 'Auth::index');
-$routes->get('/login', 'Auth::login');
-$routes->get('/logout', 'Auth::logout');
-$routes->get('/home', 'Home::index');
-$routes->get('/home/getRoom', 'Home::getRoomByUser');
-$routes->get('/home/getChats', 'Home::getChatsByRoom');
+$routes->get('/', 'AuthController::index');
+$routes->get('/login', 'AuthController::login');
+$routes->get('/logout', 'AuthController::logout');
+$routes->get('/home', 'HomeController::index');
+$routes->get('/home/getRoom', 'HomeController::getRoomByUser');
+$routes->get('/home/getChats', 'HomeController::getChatsByRoom');
+$routes->get('/home/getLastChatTime', 'HomeController::getLastChatTimeByRoom');
 
 // $routes->post('/home', 'Home::sendMessage');
-$routes->post('/home', 'Home::sendMessage');
-$routes->post('/home/decrypt', 'Home::decryptUserId');
+$routes->post('/home', 'HomeController::sendMessage');
+$routes->post('/home/decrypt', 'HomeController::decryptUserId');
 
 /*
  * --------------------------------------------------------------------

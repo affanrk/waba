@@ -5,17 +5,17 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use Google_Client;
 
-class Auth extends BaseController
+class AuthController extends BaseController
 {
     protected $request;
     protected $session;
     protected $googleClient;
-    protected $user;
+    protected $userModel;
     
     function __construct()
     {
         $this->session = \Config\Services::session();
-        $this->user = new \App\Models\UserModel();
+        $this->userModel = new \App\Models\UserModel();
         $this->googleClient = new Google_Client();
         
         $this->googleClient->setClientId('408926188996-5q0ituekcge81jcql8spjc2m0g8a7u8s.apps.googleusercontent.com');
@@ -46,15 +46,15 @@ class Auth extends BaseController
             date_default_timezone_set('Asia/Jakarta');
             $currentDateTime = date("Y-m-d H:i:s");
             $userData = array();
-            if($this->user->isAlreadyRegister($data['email']))
+            if($this->userModel->isAlreadyRegister($data['email']))
             {
                 $userData = [
                     'screen_name'   => $data['givenName']." ".$data['familyName'],
                     'email'         => $data['email'],
                     'updated_at'    => $currentDateTime
                 ];
-                $this->user->updateUserData($userData, $data['email']);
-                $id = $this->user->getId($userData['email']);
+                $this->userModel->updateUserData($userData, $data['email']);
+                $id = $this->userModel->getId($userData['email']);
                 session()->set('idUser', $id);
             }
             else

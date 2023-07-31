@@ -19,13 +19,14 @@ class RoomModel extends Model
         $userModel = new \App\Models\UserModel();
         $roomUserModel = new \App\Models\RoomUserModel();
 
-        $roomUserCheck = $roomUserModel->select('room.id AS roomId')
+        $query = $roomUserModel->select('room.id AS roomId')
                         ->join('room', 'room.id = room_user.id_room', 'right')
                         ->whereIn('room_user.id_user', $userArray)
                         ->where('room.is_group', $is_group)
                         ->groupBy('room.id')
-                        ->having('COUNT(room.id)', 2)
-                        ->first();
+                        ->having('COUNT(room.id)', 2);
+        
+        $roomUserCheck = $query->first();
         
         if (empty($roomUserCheck)) {
             $roomData = [
@@ -53,11 +54,21 @@ class RoomModel extends Model
             $roomUser = $roomUserBuilder->insertBatch($userData);
         
             $this->db->transComplete();
+            
+            $query = $this->db->table($this->table)
+                ->where('id', $idRoom)
+                ->get();
+                
+            $result = $query->getRow();
         
-            return $this->db->table($this->table)->where('id', $idRoom)->get()->getRow();
+            return $result;
         }
         
-        $room = $this->db->table($this->table)->where('id', $roomUserCheck->roomId)->get()->getRow();
+        $query = $this->db->table($this->table)
+            ->where('id', $roomUserCheck->roomId)
+            ->get();
+        
+        $room = $query->getRow();
         
         return $room;
                         
