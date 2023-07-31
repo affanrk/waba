@@ -65,6 +65,7 @@
       position: relative;
       display: block;
       top: 0;
+      overflow-y: auto;
     }
 
     .side-two {
@@ -183,7 +184,7 @@
       background-color: #fff;
       overflow-y: auto;
       border: 1px solid #f7f7f7;
-      height: calc(100% - 120px);
+      height: auto;
     }
 
     .sideBar-body {
@@ -546,7 +547,7 @@
       }
 
       .sideBar {
-        height: calc(100% - 130px);
+        height: auto;
       }
 
       .sideBar-body {
@@ -680,6 +681,8 @@
         <div class="side-one">
           <?= $this->renderSection('heading-sidebar') ?>
           <?= $this->renderSection('sidebar') ?>
+          <!-- <div class="row compose-sideBar">
+          </div> -->
         </div>
         <div class="side-two">
           <div class="row newMessage-heading">
