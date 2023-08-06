@@ -32,10 +32,10 @@ class HomeController extends AuthController
 
         $this->addEncryptedIds($allUsers);
 
-        foreach ($allUsers as &$u) {
-            $roomIds = $this->chatModel->getRoomIdsForUser($u->id, $id);
-            $u->roomIds = $roomIds;
-        }
+        // foreach ($allUsers as &$u) {
+        //     $roomIds = $this->chatModel->getRoomIdsForUser($u->id, $id);
+        //     $u->roomIds = $roomIds;
+        // }
 
         return view('home/index', [
             'user' => $user,
