@@ -46,8 +46,8 @@
                         </span>
                     </div>
                     <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
-                        <span class="time-meta pull-right" id="lastTime">  
-                            <!--  -->
+                        <span class="time-meta pull-right">
+                            <!-- roomId -->
                         </span>
                     </div>
                 </div>
@@ -382,10 +382,6 @@
                     mobileBox.style.display = 'none';
                 }
             })
-
-            function getLastChatTimes() {
-                //
-            }
 
         })();
     </script>

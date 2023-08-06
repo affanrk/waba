@@ -12,65 +12,72 @@ class RoomModel extends Model
         'name', 'is_group'
     ];
     protected $returnType = 'App\Entities\Room';
-    protected $useTimeStamps = false;
+    protected $useTimestamps = false;
 
-    function getRoomByUser($userArray, $is_group=0)
+    private $userModel;
+    private $roomUserModel;
+
+    public function __construct()
     {
-        $userModel = new \App\Models\UserModel();
-        $roomUserModel = new \App\Models\RoomUserModel();
+        parent::__construct();
+        $this->userModel = new UserModel();
+        $this->roomUserModel = new RoomUserModel();
+    }
 
-        $query = $roomUserModel->select('room.id AS roomId')
-                        ->join('room', 'room.id = room_user.id_room', 'right')
-                        ->whereIn('room_user.id_user', $userArray)
-                        ->where('room.is_group', $is_group)
-                        ->groupBy('room.id')
-                        ->having('COUNT(room.id)', 2);
-        
+    public function getRoomByUser($userArray, $is_group = 0)
+    {
+        $query = $this->roomUserModel->select('room.id AS roomId')
+            ->join('room', 'room.id = room_user.id_room', 'right')
+            ->whereIn('room_user.id_user', $userArray)
+            ->where('room.is_group', $is_group)
+            ->groupBy('room.id')
+            ->having('COUNT(room.id)', 2);
+
         $roomUserCheck = $query->first();
-        
+
         if (empty($roomUserCheck)) {
-            $roomData = [
-                'name' => '',
-                'is_group' => 0,
-            ];
-        
-            $this->db->transStart();
-        
-            $room = $this->db->table($this->table)->insert($roomData);
-        
-            $idRoom = $this->db->insertID();
-        
-            $userData = [];
-        
-            foreach ($userArray as $u) {
-                $temp = [
-                    'id_user' => $u,
-                    'id_room' => $idRoom,
-                ];
-                array_push($userData, $temp);
-            }
-        
-            $roomUserBuilder = $roomUserModel->builder();
-            $roomUser = $roomUserBuilder->insertBatch($userData);
-        
-            $this->db->transComplete();
-            
-            $query = $this->db->table($this->table)
-                ->where('id', $idRoom)
-                ->get();
-                
-            $result = $query->getRow();
-        
-            return $result;
+            return $this->createRoom($userArray);
         }
-        
+
+        return $this->getRoomById($roomUserCheck->roomId);
+    }
+
+    private function createRoom($userArray)
+    {
+        $roomData = [
+            'name' => '',
+            'is_group' => 0,
+        ];
+
+        $this->db->transStart();
+
+        $room = $this->db->table($this->table)->insert($roomData);
+        $idRoom = $this->db->insertID();
+
+        $userData = [];
+
+        foreach ($userArray as $u) {
+            $temp = [
+                'id_user' => $u,
+                'id_room' => $idRoom,
+            ];
+            array_push($userData, $temp);
+        }
+
+        $roomUserBuilder = $this->roomUserModel->builder();
+        $roomUser = $roomUserBuilder->insertBatch($userData);
+
+        $this->db->transComplete();
+
+        return $this->getRoomById($idRoom);
+    }
+
+    private function getRoomById($roomId)
+    {
         $query = $this->db->table($this->table)
-            ->where('id', $roomUserCheck->roomId)
+            ->where('id', $roomId)
             ->get();
-        
-        $room = $query->getRow();
-        
-        return $room;
-                        
+
+        return $query->getRow();
     }
 }

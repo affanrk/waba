@@ -35,9 +35,7 @@ $routes->get('/logout', 'AuthController::logout');
 $routes->get('/home', 'HomeController::index');
 $routes->get('/home/getRoom', 'HomeController::getRoomByUser');
 $routes->get('/home/getChats', 'HomeController::getChatsByRoom');
-$routes->get('/home/getLastChatTime', 'HomeController::getLastChatTimeByRoom');
 
-// $routes->post('/home', 'Home::sendMessage');
 $routes->post('/home', 'HomeController::sendMessage');
 $routes->post('/home/decrypt', 'HomeController::decryptUserId');
 

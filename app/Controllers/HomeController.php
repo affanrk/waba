@@ -2,6 +2,12 @@
 
 namespace App\Controllers;
 
+use App\Entities\Chat;
+use App\Models\ChatModel;
+use App\Models\RoomModel;
+use App\Models\UserModel;
+use Config\Services;
+
 class HomeController extends AuthController
 {
     protected $roomModel;
@@ -9,28 +15,27 @@ class HomeController extends AuthController
     protected $chatModel;
     protected $encrypter;
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
-        $this->roomModel = new \App\Models\RoomModel();
-        $this->chatModel = new \App\Models\ChatModel();
-        $this->encrypter = \Config\Services::encrypter();
+        $this->roomModel = new RoomModel();
+        $this->chatModel = new ChatModel();
+        $this->userModel = new UserModel();
+        $this->encrypter = Services::encrypter();
     }
 
     public function index()
     {
-        $id = session()->get('idUser');
-
+        $id = $this->getCurrentUserId();
         $user = $this->userModel->find($id);
-        $allUsers = $this->userModel->where('id!=' . $id)->findAll();
-        
-        foreach ($allUsers as $u) {
-            $u->encryptedId = base64_encode($this->encrypter->encrypt($u->id));
+        $allUsers = $this->userModel->where('id !=', $id)->findAll();
+
+        $this->addEncryptedIds($allUsers);
+
+        foreach ($allUsers as &$u) {
+            $roomIds = $this->chatModel->getRoomIdsForUser($u->id, $id);
+            $u->roomIds = $roomIds;
         }
-        
-        // foreach ($allUsers as &$u) {
-        //     $u->encryptedId = base64_encode($u->id);
-        // }
 
         return view('home/index', [
             'user' => $user,
@@ -39,7 +44,7 @@ class HomeController extends AuthController
         ]);
     }
 
-    function decryptUserId()
+    public function decryptUserId()
     {
         $encryptedId = $this->request->getPost('encryptedId');
         $decryptedId = $this->encrypter->decrypt(base64_decode($encryptedId));
@@ -47,10 +52,10 @@ class HomeController extends AuthController
         return $this->response->setJSON(['decryptedId' => $decryptedId]);
     }
 
-    function getRoomByUser()
+    public function getRoomByUser()
     {
         if ($this->request->isAJAX()) {
-            $idCurrentUser = session()->get('idUser');
+            $idCurrentUser = $this->getCurrentUserId();
             $idReceiver = $this->request->getGet('contactId');
 
             $room = $this->roomModel->getRoomByUser([$idCurrentUser, $idReceiver]);
@@ -59,52 +64,52 @@ class HomeController extends AuthController
         }
     }
 
-    function getChatsByRoom()
+    public function getChatsByRoom()
     {
         if ($this->request->isAJAX()) {
-            $id_room = $this->request->getGet('roomId');
+            $roomId = $this->request->getGet('roomId');
 
-            $chatModel = new \App\Models\ChatModel();
-
-            $chats = $chatModel->getChatsByRoom($id_room);
+            $chats = $this->chatModel->getChatsByRoom($roomId);
 
             return $this->response->setJSON($chats);
         }
     }
 
-    function getLastChatTimeByRoom()
-    {
-        //
-    }
-
-    function sendMessage()
+    public function sendMessage()
     {
         if ($this->request->isAJAX()) {
             $message = $this->request->getPost('message');
-            $id_room = $this->request->getPost('id_room');
-            $id_user = session()->get('idUser');
+            $roomId = $this->request->getPost('id_room');
+            $userId = $this->getCurrentUserId();
 
-            $modelChat = new \App\Models\ChatModel();
-            $chat = new \App\Entities\Chat();
-
-            date_default_timezone_set('Asia/Jakarta');
-            $currentDateTime = date("Y-m-d H:i:s");
-
-            $chat->id_room = $id_room;
-            $chat->id_user = $id_user;
+            $chat = new Chat();
+            $chat->id_room = $roomId;
+            $chat->id_user = $userId;
             $chat->message = $message;
-            $chat->media = NULL;
+            $chat->media = null;
             $chat->is_active = 1;
-            $chat->created_at = $currentDateTime;
+            $chat->created_at = date("Y-m-d H:i:s");
 
-            $modelChat->save($chat);
+            $this->chatModel->save($chat);
 
             $chatMessage = [
-                'created_at' => $currentDateTime,
+                'created_at' => $chat->created_at,
                 'message' => $message,
             ];
 
             return $this->response->setJSON($chatMessage);
+        }
+    }
+
+    private function getCurrentUserId()
+    {
+        return $this->session->get('idUser');
+    }
+
+    private function addEncryptedIds(&$users)
+    {
+        foreach ($users as &$user) {
+            $user->encryptedId = base64_encode($this->encrypter->encrypt($user->id));
         }
     }
 }

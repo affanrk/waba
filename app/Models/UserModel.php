@@ -12,35 +12,34 @@ class UserModel extends Model
         'email', 'screen_name', 'phone'
     ];
     protected $returnType = 'App\Entities\User';
-    protected $useTimeStamps = false;
+    protected $useTimestamps = false;
 
-    function isAlreadyRegister($authId)
+    public function isAlreadyRegistered($authId)
     {
-        return $this->db->table('user')
-            ->getWhere(['email' => $authId])
-            ->getRowArray()>0?true:false;
+        $user = $this->db->table('user')
+            ->where(['email' => $authId])
+            ->get()
+            ->getRow();
+
+        return $user ? true : false;
     }
 
-    function updateUserData($userData, $authId)
+    public function updateUserData($userData, $authId)
     {
         return $this->db->table('user')
             ->where(['email' => $authId])
             ->update($userData);
     }
 
-    function getId($email)
+    public function getIdByEmail($email)
     {
         $query = $this->db->table('user')
-            ->select('id')->where('email', $email)
+            ->select('id')
+            ->where('email', $email)
             ->get();
-        
+
         $user = $query->getRow();
-    
-        if ($user) {
-            return $user->id;
-        } else {
-            return null; 
-        }
+
+        return $user ? $user->id : null;
     }
-    
 }
