@@ -7,6 +7,9 @@
                 <img src="https://bootdey.com/img/Content/avatar/avatar1.png">
             </div>
         </div>
+        <div class="col-sm-3 col-xs-3 heading-user-info">
+            <p><?= $user->phone ?> (<?= $user->screen_name ?>)</p>
+        </div>
         <div class="col-sm-3 col-xs-3 heading-dot pull-right">
             <a href="<?= base_url('logout') ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to logout?')">
                 Logout
@@ -30,31 +33,33 @@
             </div>
         </div>
     </div> -->
-    <?php foreach ($allUsers as $u) : ?>
-    <div class="row sideBar">
-        <div class="row sideBar-body listChat" user-id='<?= htmlspecialchars($u->encryptedId) ?>' user-name='<?= $u->phone ?> (<?= $u->screen_name ?>)'>
-            <div class="col-sm-3 col-xs-3 sideBar-avatar">
-                <div class="avatar-icon">
-                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png">
-                </div>
-            </div>
-            <div class="col-sm-9 col-xs-9 sideBar-main">
-                <div class="row">
-                    <div class="col-sm-8 col-xs-8 sideBar-name">
-                        <span class="name-meta">
-                            <?= $u->phone ?> (<?= $u->screen_name ?>)
-                        </span>
+    <div id="chatsContainer">
+        <?php foreach ($allUsers as $u) : ?>
+        <div class="row sideBar">
+            <div class="row sideBar-body listChat" user-id='<?= htmlspecialchars($u->encryptedId) ?>' user-name='<?= $u->phone ?> (<?= $u->screen_name ?>)' data-last-chat-time="<?= $u->unformatted_last_chat_time ?>">
+                <div class="col-sm-3 col-xs-3 sideBar-avatar">
+                    <div class="avatar-icon">
+                        <img src="https://bootdey.com/img/Content/avatar/avatar1.png">
                     </div>
-                    <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
-                        <span class="time-meta pull-right">
-                            <!-- roomId -->
-                        </span>
+                </div>
+                <div class="col-sm-9 col-xs-9 sideBar-main">
+                    <div class="row">
+                        <div class="col-sm-8 col-xs-8 sideBar-name">
+                            <span class="name-meta">
+                                <?= $u->phone ?> (<?= $u->screen_name ?>)
+                            </span>
+                        </div>
+                        <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
+                            <span class="time-meta pull-right">
+                                <?= $u->last_chat_time ?>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <?php endforeach; ?>
     </div>
-    <?php endforeach; ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('conversationMobile') ?>
@@ -68,7 +73,7 @@
             </div>
         </div>
         <div class="col-sm-7 col-xs-6 heading-name">
-            <a class="heading-name-meta" id="recipientNameMobile"> Siapa aja boleh
+            <a class="heading-name-meta" id="recipientNameMobile">
             </a>
             <span class="heading-online">Online</span>
         </div>
@@ -109,7 +114,7 @@
             </div>
         </div>
         <div class="col-sm-8 col-xs-7 heading-name">
-            <a class="heading-name-meta" id="recipientName"> Siapa aja boleh
+            <a class="heading-name-meta" id="recipientName">
             </a>
             <span class="heading-online">Online</span>
         </div>
@@ -133,7 +138,7 @@
         <div class="col-sm-9 col-xs-9 reply-main">
             <textarea class="form-control" rows="1" id="comment"></textarea>
         </div>
-        <div class="col-sm-1 col-xs-1 reply-recording">
+        <div class="col-sm-1 col-xs-1 reply-media" id="send-media">
             <i class="fa fa-paperclip fa-2x" aria-hidden="true"></i>
         </div>
         <div class="col-sm-1 col-xs-1 reply-send" id='send-message'>
@@ -177,7 +182,9 @@
             var $commentMobile = $('#commentMobile');
             var $sendButton = $('#send-message');
             var $sendButtonMobile = $('#sendMobile');
-            var mobileBox = document.getElementById('mobileConversation')
+            var mobileBox = document.getElementById('mobileConversation');
+
+            sortChats();
 
             $sendButton.addClass('disabled');
             $sendButtonMobile.addClass('disabled');
@@ -276,6 +283,7 @@
                 var cName = $(this).attr('user-name');
                 var decUserId = decr(cId);
                 // console.log(decryptedUserId);
+
                 if(window.innerWidth <= 700){
                     mobileBox.style.display = 'block';
                 }
@@ -382,6 +390,20 @@
                     mobileBox.style.display = 'none';
                 }
             })
+
+            // function sortChats() {
+            //     $('.sideBar').sort(function(a, b) {
+            //         var aTimeString = $(a).data('last-chat-time');
+            //         var bTimeString = $(b).data('last-chat-time');
+            //         console.log(aTimeString);
+            //         console.log(bTimeString);
+                    
+            //         var aTime = new Date(aTimeString);
+            //         var bTime = new Date(bTimeString);
+                    
+            //         return bTime - aTime;
+            //     }).appendTo('#chatsContainer'); // Replace 'chatsContainer' with the ID of the container element
+            // }
 
         })();
     </script>

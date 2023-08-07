@@ -90,18 +90,32 @@
       width: 100%;
       background-color: #eee;
       z-index: 1000;
+      display: flex;
+      align-items: center;
     }
 
     .heading-avatar {
       padding: 0;
       cursor: pointer;
-
+      flex: 0 0 auto;
     }
 
     .heading-avatar-icon img {
       border-radius: 50%;
       height: 40px;
       width: 40px;
+      margin: 0; /* Reset any default margins */
+      padding: 0;
+    }
+
+    .heading-user-info {
+      flex: 1; /* Allow user info to grow and fill available space */
+      display: flex;
+      align-items: center;
+    }
+
+    .heading-user-info p {
+      margin: 0; /* Reset any default margins */
     }
 
     .heading-name {

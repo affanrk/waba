@@ -38,7 +38,6 @@ class AuthController extends BaseController
 
             $googleService = new \Google_Service_Oauth2($this->googleClient);
             $data = $googleService->userinfo->get();
-            // echo "<pre>"; print_r($data);die;
 
             date_default_timezone_set('Asia/Jakarta');
             $currentDateTime = date("Y-m-d H:i:s");
