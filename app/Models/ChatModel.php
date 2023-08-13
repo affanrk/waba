@@ -130,7 +130,10 @@ class ChatModel extends Model
 
     private function formatAsDate($interval)
     {
-        return $interval->format('d/m/Y');
+        $currentDateTime = new \DateTime();
+        $timestamp = $currentDateTime->getTimestamp() - $interval->s - $interval->i * 60 - $interval->h * 3600 - $interval->days * 86400;
+        
+        return date('j/n/y', $timestamp);
     }
 
     private function formatAsHoursMinutes($interval)

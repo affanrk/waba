@@ -105,10 +105,10 @@ class HomeController extends AuthController
         return $this->session->get('idUser');
     }
 
-    private function addEncryptedIds(&$users)
+    private function addEncryptedIds(&$allUsers)
     {
-        foreach ($users as &$user) {
-            $user->encryptedId = base64_encode($this->encrypter->encrypt($user->id));
+        foreach ($allUsers as &$u) {
+            $u->encryptedId = base64_encode($this->encrypter->encrypt($u->id));
         }
     }
 
@@ -124,8 +124,14 @@ class HomeController extends AuthController
     
                 $u->last_chat_time = $formattedLastChatTime;
                 $u->unformatted_last_chat_time = $unformattedLastChatTime;
-                var_dump($u->unformatted_last_chat_time);
+                // var_dump($u->unformatted_last_chat_time);
             }
         }
+
+        usort($allUsers, function($a, $b) {
+            $aTimestamp = strtotime($a->unformatted_last_chat_time);
+            $bTimestamp = strtotime($b->unformatted_last_chat_time);
+            return $bTimestamp - $aTimestamp;
+        });
     }
 }

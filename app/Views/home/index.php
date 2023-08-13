@@ -36,7 +36,7 @@
     <div id="chatsContainer">
         <?php foreach ($allUsers as $u) : ?>
         <div class="row sideBar">
-            <div class="row sideBar-body listChat" user-id='<?= htmlspecialchars($u->encryptedId) ?>' user-name='<?= $u->phone ?> (<?= $u->screen_name ?>)' data-last-chat-time="<?= $u->unformatted_last_chat_time ?>">
+            <div class="row sideBar-body listChat" user-id='<?= htmlspecialchars($u->encryptedId) ?>' user-name='<?= $u->phone ?> (<?= $u->screen_name ?>)'>
                 <div class="col-sm-3 col-xs-3 sideBar-avatar">
                     <div class="avatar-icon">
                         <img src="https://bootdey.com/img/Content/avatar/avatar1.png">
@@ -183,8 +183,6 @@
             var $sendButton = $('#send-message');
             var $sendButtonMobile = $('#sendMobile');
             var mobileBox = document.getElementById('mobileConversation');
-
-            sortChats();
 
             $sendButton.addClass('disabled');
             $sendButtonMobile.addClass('disabled');
@@ -390,20 +388,6 @@
                     mobileBox.style.display = 'none';
                 }
             })
-
-            // function sortChats() {
-            //     $('.sideBar').sort(function(a, b) {
-            //         var aTimeString = $(a).data('last-chat-time');
-            //         var bTimeString = $(b).data('last-chat-time');
-            //         console.log(aTimeString);
-            //         console.log(bTimeString);
-                    
-            //         var aTime = new Date(aTimeString);
-            //         var bTime = new Date(bTimeString);
-                    
-            //         return bTime - aTime;
-            //     }).appendTo('#chatsContainer'); // Replace 'chatsContainer' with the ID of the container element
-            // }
 
         })();
     </script>
