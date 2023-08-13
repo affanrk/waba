@@ -33,8 +33,7 @@
             </div>
         </div>
     </div> -->
-    <div id="chatsContainer">
-        <?php foreach ($allUsers as $u) : ?>
+    <?php foreach ($allUsers as $u) : ?>
         <div class="row sideBar">
             <div class="row sideBar-body listChat" user-id='<?= htmlspecialchars($u->encryptedId) ?>' user-name='<?= $u->phone ?> (<?= $u->screen_name ?>)'>
                 <div class="col-sm-3 col-xs-3 sideBar-avatar">
@@ -48,18 +47,18 @@
                             <span class="name-meta">
                                 <?= $u->phone ?> (<?= $u->screen_name ?>)
                             </span>
+                            <p class="last-message small"><?= $u->last_message ?>
                         </div>
                         <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
                             <span class="time-meta pull-right">
-                                <?= $u->last_chat_time ?>
+                                <?php echo $u->last_chat_time ?: "No chat history"; ?>
                             </span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <?php endforeach; ?>
-    </div>
+    <?php endforeach; ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('conversationMobile') ?>
@@ -221,36 +220,60 @@
                 const dayOfWeek = time.toLocaleString('en-US', {
                     weekday: 'short'
                 });
-                const hours = (time.getHours() % 12 || 12).toString().padStart(2, '0'); // Konversi ke format 12 jam
-                const minutes = time.getMinutes().toString().padStart(2, '0');
+
+                const hours = (time.getHours() % 12 || 12);
+                const minutes = time.getMinutes();
+
                 const ampm = time.getHours() >= 12 ? 'PM' : 'AM';
 
-                return `${hours}:${minutes} ${ampm}`;
-            }
+                const formattedTime = `${hours}${minutes !== 0 ? ':' + (minutes < 10 ? '0' : '') + minutes : ''} ${ampm}`;
 
-            function formatDateWithoutLeadingZero(date) {
-                var day = date.getDate();
-                var month = date.getMonth() + 1;
-                var year = date.getFullYear();
-
-                return `${day}/${month}/${year}`;
+                return formattedTime;
             }
 
             function groupChatsByTime(chats) {
                 var groupedChats = {};
 
+                var todayDate = new Date().toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'numeric',
+                    year: 'numeric'
+                });
+
+                var yesterdayDate = new Date();
+                yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+                var yesterdayFormatted = yesterdayDate.toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'numeric',
+                    year: 'numeric'
+                });
+
                 chats.forEach(function(chat) {
                     var chatTime = new Date(chat.created_at).getTime();
+                    var chatDate = new Date(chat.created_at).toLocaleDateString('en-GB', {
+                        day: 'numeric',
+                        month: 'numeric',
+                        year: 'numeric'
+                    });
+                    
+                    var chatDateComponents = chatDate.split('/');
                     var currentTime = new Date().getTime();
                     var timeDiff = currentTime - chatTime;
+
                     var group;
 
-                    if (timeDiff < 24 * 60 * 60 * 1000) {
+                    if (chatDate === todayDate) {
                         group = 'today';
-                    } else if (timeDiff < 48 * 60 * 60 * 1000) {
+                    } else if (chatDate === yesterdayFormatted) {
                         group = 'yesterday';
                     } else {
-                        group = formatDateWithoutLeadingZero(new Date(chat.created_at));
+                        var day = parseInt(chatDateComponents[0]).toString();
+                        var month = parseInt(chatDateComponents[1]).toString();
+                        var year = chatDateComponents[2];
+
+                        chatDate = `${day}/${month}/${year}`;
+
+                        group = chatDate;
                     }
 
                     if (!groupedChats[group]) {
@@ -266,13 +289,25 @@
             function displayGroupedChats(groupedChats) {
                 $('#conversation').html('');
 
-                Object.keys(groupedChats).forEach(function(group) {
+                var sortedGroups = Object.keys(groupedChats).sort(function(a, b) {
+                    if (a === 'today') return -1; // Tetap pertahankan "Today" di atas
+                    if (b === 'today') return 1;
+                    if (a === 'yesterday') return -1; // Kemudian "Yesterday"
+                    if (b === 'yesterday') return 1;
+                    return new Date(b) - new Date(a); // Urutan tanggal terbalik (baru ke lama)
+                });
+
+                sortedGroups.forEach(function(group) {
                     var chatsInGroup = groupedChats[group];
                     var groupTemplate = `<div class="row message-previous">
                                             <div class="col-sm-12 previous">
                                                 ${group}
                                             </div>
                                         </div>`;
+
+                    chatsInGroup.sort(function(a, b) {
+                        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                    });
 
                     chatsInGroup.forEach(function(chat) {
                         var message = chat.message;
@@ -311,10 +346,9 @@
 
                         groupTemplate += template;
                     });
-
-                    $('#conversation').append(groupTemplate);
-                    // $('#conversation').append(template);
-                    $('#messageMobile').append(groupTemplate);
+                    
+                    $('#conversation').prepend(groupTemplate);
+                    $('#messageMobile').prepend(groupTemplate);
                     $('#conversation').scrollTop($('#conversation')[0].scrollHeight);
                     $('#messageMobile').scrollTop($('#messageMobile')[0].scrollHeight);
                 });
@@ -322,7 +356,7 @@
 
             function getChats() {
                 if (isLoading) {
-                    setTimeout(getChats, 100); // Tunggu dan coba lagi
+                    setTimeout(getChats, 100);
                     return;
                 }
 
@@ -376,22 +410,6 @@
                     }
                 });
             }
-            
-            function toggleBtn() {
-                if ($comment.val().trim().length > 0) {
-                    $sendButton.removeClass('disabled');
-                } else {
-                    $sendButton.addClass('disabled');
-                }
-            }
-            
-            function toggleBtnMobile() {
-                if ($commentMobile.val().trim().length > 0) {
-                    $sendButtonMobile.removeClass('disabled');
-                } else {
-                    $sendButtonMobile.addClass('disabled');
-                }
-            }
 
             $(document).on('click', '.listChat', function() {
                 if (isLoading) {
@@ -439,6 +457,22 @@
                     }
                 });
             });
+            
+            function toggleBtn() {
+                if ($comment.val().trim().length > 0) {
+                    $sendButton.removeClass('disabled');
+                } else {
+                    $sendButton.addClass('disabled');
+                }
+            }
+            
+            function toggleBtnMobile() {
+                if ($commentMobile.val().trim().length > 0) {
+                    $sendButtonMobile.removeClass('disabled');
+                } else {
+                    $sendButtonMobile.addClass('disabled');
+                }
+            }
             
             $sendButton.on('click', function() {
                 var message = $comment.val().trim();

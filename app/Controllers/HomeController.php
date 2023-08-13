@@ -33,7 +33,7 @@ class HomeController extends AuthController
         $allUsers = $this->userModel->where('id !=', $id)->findAll();
 
         $this->addEncryptedIds($allUsers);
-        $this->getLastChatTimesForAllUsers($allUsers, $id);
+        $this->getLastChatData($allUsers, $id);
 
         return view('home/index', [
             'user' => $user,
@@ -112,19 +112,23 @@ class HomeController extends AuthController
         }
     }
 
-    private function getLastChatTimesForAllUsers(&$allUsers, $currentUserId)
+    private function getLastChatData(&$allUsers, $currentUserId)
     {
         foreach ($allUsers as $u) {
             $otherUserId = $u->id;
             $roomId = $this->chatModel->getRoomId($currentUserId, $otherUserId);
 
             if ($roomId) {
-                $unformattedLastChatTime = $this->chatModel->getUnformattedLastChatTime($roomId, $currentUserId, $otherUserId);
-                $formattedLastChatTime = $this->chatModel->getFormattedLastChatTime($roomId, $currentUserId, $otherUserId);
-    
-                $u->last_chat_time = $formattedLastChatTime;
-                $u->unformatted_last_chat_time = $unformattedLastChatTime;
-                // var_dump($u->unformatted_last_chat_time);
+                $lastMessageData = $this->chatModel->getLastMessage($roomId, $currentUserId, $otherUserId);
+                $message = $lastMessageData->message;
+                $unformattedTime = $lastMessageData->unformattedTime;
+                $formattedTime = $lastMessageData->formattedTime;
+
+                $limitedMessage = strlen($message) > 20 ? substr($message, 0, 20) . "..." : $message;
+
+                $u->last_message = $limitedMessage;
+                $u->last_chat_time = $formattedTime;
+                $u->unformatted_last_chat_time = $unformattedTime;
             }
         }
 
@@ -134,4 +138,5 @@ class HomeController extends AuthController
             return $bTimestamp - $aTimestamp;
         });
     }
+
 }

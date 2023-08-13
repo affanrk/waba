@@ -632,6 +632,11 @@
         height: calc(100% - 140px);
       }
 
+      .small {
+        font-size: 12px; /* You can adjust the font size as needed */
+        color: #777; /* You can adjust the text color as needed */
+      }
+
       .reply {
         height: 70px;
       }

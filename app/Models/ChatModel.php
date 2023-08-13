@@ -34,72 +34,104 @@ class ChatModel extends Model
         return ($result) ? $result->id_room : null;
     }
 
-    public function getLastChatTime($roomId, $userId, $otherUserId)
+    public function getLastMessage($roomId, $userId, $otherUserId)
     {
-        $builder = $this->select('id_user, MAX(created_at) as last_chat_time')
+        $query = $this->db->table('chat')
+            ->select('message, created_at')
             ->where('id_room', $roomId)
             ->whereIn('id_user', [$userId, $otherUserId])
-            ->groupBy('id_user')
+            ->orderBy('created_at', 'desc')
+            ->limit(1)
             ->get();
 
-        $results = $builder->getResult();
+        $result = $query->getRow();
 
-        $user1LastChatTime = null;
-        $user2LastChatTime = null;
-
-        foreach ($results as $result) {
-            if ($result->id_user === $userId) {
-                $user1LastChatTime = $result->last_chat_time;
-            } elseif ($result->id_user === $otherUserId) {
-                $user2LastChatTime = $result->last_chat_time;
-            }
+        if ($result) {
+            return (object) [
+                'message' => $result->message,
+                'unformattedTime' => $result->created_at,
+                'formattedTime' => $this->formatChatTime($result->created_at),
+            ];
         }
 
-        return [
-            'user1_last_chat_time' => $user1LastChatTime,
-            'user2_last_chat_time' => $user2LastChatTime,
+        return (object) [
+            'message' => '',
+            'unformattedTime' => null,
+            'formattedTime' => null,
         ];
     }
 
-    public function getUnformattedLastChatTime($roomId, $userId, $otherUserId)
-    {
-        $lastChatTimes = $this->getLastChatTime($roomId, $userId, $otherUserId);
+    // public function getLastChat($roomId, $userId, $otherUserId)
+    // {
+    //     $builder = $this->select('id_user, MAX(created_at) as last_chat_time, MAX(message) as last_message')
+    //         ->where('id_room', $roomId)
+    //         ->whereIn('id_user', [$userId, $otherUserId])
+    //         ->groupBy('id_user')
+    //         ->get();
 
-        $yourLastChatTime = $lastChatTimes['user1_last_chat_time'];
-        $theirLastChatTime = $lastChatTimes['user2_last_chat_time'];
+    //     $results = $builder->getResult();
 
-        if ($theirLastChatTime && $theirLastChatTime > $yourLastChatTime) {
-            return $theirLastChatTime;
-        }
+    //     // var_dump($results);
 
-        return $yourLastChatTime;
-    }
+    //     $user1LastMessage = null;
+    //     $user2LastMessage = null;
+    //     $user1LastChatTime = null;
+    //     $user2LastChatTime = null;
 
-    public function getFormattedLastChatTime($roomId, $userId, $otherUserId)
-    {
-        $lastChatTimes = $this->getLastChatTime($roomId, $userId, $otherUserId);
+    //     foreach ($results as $result) {
+    //         if ($result->id_user === $userId) {
+    //             $user1LastMessage = $result->last_message;
+    //             $user1LastChatTime = $result->last_chat_time;
+    //             // var_dump($user1LastMessage);
+    //         } elseif ($result->id_user === $otherUserId) {
+    //             $user2LastMessage = $result->last_message;
+    //             $user2LastChatTime = $result->last_chat_time;
+    //             // var_dump($user2LastMessage);
+    //         }
+    //     }
 
-        $yourLastChatTime = $lastChatTimes['user1_last_chat_time'];
-        $theirLastChatTime = $lastChatTimes['user2_last_chat_time'];
+    //     return [
+    //         'user1_last_message' => $user1LastMessage,
+    //         'user2_last_message' => $user2LastMessage,
+    //         'user1_last_chat_time' => $user1LastChatTime,
+    //         'user2_last_chat_time' => $user2LastChatTime,
+    //     ];
+    // }
 
-        if ($theirLastChatTime && $theirLastChatTime > $yourLastChatTime) {
-            return $this->formatChatTime($theirLastChatTime);
-        }
+    // public function getLastMessage($roomId, $userId, $otherUserId)
+    // {
+    //     $lastChatData = $this->getLastChat($roomId, $userId, $otherUserId);
 
-        return $this->formatChatTime($yourLastChatTime);
-    }
-
+    //     $yourLastChatTime = $lastChatData['user1_last_chat_time'];
+    //     $theirLastChatTime = $lastChatData['user2_last_chat_time'];
+    //     $yourLastMessage = $lastChatData['user1_last_message'];
+    //     $theirLastMessage = $lastChatData['user2_last_message'];
+        
+    //     if ($theirLastChatTime && $theirLastChatTime > $yourLastChatTime) {
+    //         return (object) [
+    //             'message' => $theirLastMessage,
+    //             'unformattedTime' => $theirLastChatTime,
+    //             'formattedTime' => $this->formatChatTime($theirLastChatTime),
+    //         ];
+    //     }
+    
+    //     return (object) [
+    //         'message' => $yourLastMessage,
+    //         'unformattedTime' => $yourLastChatTime,
+    //         'formattedTime' => $this->formatChatTime($yourLastChatTime),
+    //     ];
+    // }
+    
     private function formatChatTime($timestamp)
     {
         date_default_timezone_set('Asia/Jakarta');
-        if ($timestamp) {
+        if ($timestamp){
             $currentDateTime = new \DateTime();
             $lastChatTime = new \DateTime($timestamp);
             $interval = $currentDateTime->diff($lastChatTime);
-
+    
             return $this->formatTimeInterval($interval);
         }
-
         return "No chat history";
     }
 
@@ -113,19 +145,7 @@ class ChatModel extends Model
             return "Yesterday";
         }
 
-        if ($interval->h >= 1) {
-            return $this->formatAsHoursMinutes($interval);
-        }
-
-        if ($interval->i >= 1) {
-            return $this->formatAsMinutes($interval);
-        }
-
-        if ($interval->s >= 1) {
-            return $this->formatAsSeconds($interval);
-        }
-
-        return "Just now";
+        return $this->formatAsHoursMinutes($interval);
     }
 
     private function formatAsDate($interval)
@@ -139,21 +159,10 @@ class ChatModel extends Model
     private function formatAsHoursMinutes($interval)
     {
         $timestamp = time() - $interval->s - $interval->i * 60 - $interval->h * 3600;
-        
-        $formattedTime = date('h:i A', $timestamp); // Format in AM and PM
+
+        $formattedTime = date('g:i A', $timestamp); // Format in AM and PM
 
         return $formattedTime;
     }
 
-    private function formatAsMinutes($interval)
-    {
-        $minutes = $interval->i;
-        return "$minutes minute" . ($minutes > 1 ? 's' : '') . " ago";
-    }
-
-    private function formatAsSeconds($interval)
-    {
-        $seconds = $interval->s;
-        return "$seconds second" . ($seconds > 1 ? 's' : '') . " ago";
-    }
 }
