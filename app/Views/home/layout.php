@@ -445,6 +445,16 @@
       pointer-events: none;
     }
 
+    #comment.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    #commentMobile.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
     /*Reply*/
 
     .reply {

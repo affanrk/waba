@@ -139,8 +139,10 @@ class ChatModel extends Model
     private function formatAsHoursMinutes($interval)
     {
         $timestamp = time() - $interval->s - $interval->i * 60 - $interval->h * 3600;
+        
+        $formattedTime = date('h:i A', $timestamp); // Format in AM and PM
 
-        return date('H:i', $timestamp);
+        return $formattedTime;
     }
 
     private function formatAsMinutes($interval)

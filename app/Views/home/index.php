@@ -177,6 +177,7 @@
         (function() {
             var roomId;
             var currentContactId = null;
+            var isLoading = false;
             var dCache = {};
             var $comment = $('#comment');
             var $commentMobile = $('#commentMobile');
@@ -186,6 +187,8 @@
 
             $sendButton.addClass('disabled');
             $sendButtonMobile.addClass('disabled');
+            $comment.addClass('disabled');
+            $commentMobile.addClass('disabled');
 
             // function isBase64(str) {
             //     try {
@@ -218,13 +221,113 @@
                 const dayOfWeek = time.toLocaleString('en-US', {
                     weekday: 'short'
                 });
-                const hours = time.getHours().toString().padStart(2, '0');
+                const hours = (time.getHours() % 12 || 12).toString().padStart(2, '0'); // Konversi ke format 12 jam
                 const minutes = time.getMinutes().toString().padStart(2, '0');
+                const ampm = time.getHours() >= 12 ? 'PM' : 'AM';
 
-                return `${dayOfWeek}, ${hours}:${minutes}`;
+                return `${hours}:${minutes} ${ampm}`;
+            }
+
+            function formatDateWithoutLeadingZero(date) {
+                var day = date.getDate();
+                var month = date.getMonth() + 1;
+                var year = date.getFullYear();
+
+                return `${day}/${month}/${year}`;
+            }
+
+            function groupChatsByTime(chats) {
+                var groupedChats = {};
+
+                chats.forEach(function(chat) {
+                    var chatTime = new Date(chat.created_at).getTime();
+                    var currentTime = new Date().getTime();
+                    var timeDiff = currentTime - chatTime;
+                    var group;
+
+                    if (timeDiff < 24 * 60 * 60 * 1000) {
+                        group = 'today';
+                    } else if (timeDiff < 48 * 60 * 60 * 1000) {
+                        group = 'yesterday';
+                    } else {
+                        group = formatDateWithoutLeadingZero(new Date(chat.created_at));
+                    }
+
+                    if (!groupedChats[group]) {
+                        groupedChats[group] = [];
+                    }
+
+                    groupedChats[group].push(chat);
+                });
+
+                return groupedChats;
+            }
+
+            function displayGroupedChats(groupedChats) {
+                $('#conversation').html('');
+
+                Object.keys(groupedChats).forEach(function(group) {
+                    var chatsInGroup = groupedChats[group];
+                    var groupTemplate = `<div class="row message-previous">
+                                            <div class="col-sm-12 previous">
+                                                ${group}
+                                            </div>
+                                        </div>`;
+
+                    chatsInGroup.forEach(function(chat) {
+                        var message = chat.message;
+                        var created_at = chat.created_at;
+                        var id_user = chat.id_user;
+                        var time = extractTime(chat.created_at);
+                        var template = null;
+
+                        if (id_user == <?= $idUser ?>) {
+                            template = `<div class="row message-body">
+                                            <div class="col-sm-12 message-main-sender">
+                                                <div class="sender">
+                                                    <div class="message-text">
+                                                        ` + message + `
+                                                    </div>
+                                                    <span class="message-time pull-right">
+                                                        ` + time + `
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>`;
+                        } else {
+                            template = `<div class="row message-body">
+                                            <div class="col-sm-12 message-main-receiver">
+                                                <div class="receiver">
+                                                    <div class="message-text">
+                                                        ` + message + `
+                                                    </div>
+                                                    <span class="message-time pull-right">
+                                                        ` + time + `
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>`
+                        }
+
+                        groupTemplate += template;
+                    });
+
+                    $('#conversation').append(groupTemplate);
+                    // $('#conversation').append(template);
+                    $('#messageMobile').append(groupTemplate);
+                    $('#conversation').scrollTop($('#conversation')[0].scrollHeight);
+                    $('#messageMobile').scrollTop($('#messageMobile')[0].scrollHeight);
+                });
             }
 
             function getChats() {
+                if (isLoading) {
+                    setTimeout(getChats, 100); // Tunggu dan coba lagi
+                    return;
+                }
+
+                isLoading = true;
+
                 $.ajax({
                     url: "<?= site_url('home/getChats') ?>",
                     type: 'GET',
@@ -233,84 +336,13 @@
                     },
                     dataType: 'json',
                     success: function(data) {
-                        // console.log(data);
-                        for (var i = 0; i < data.length; i++) {
-                            var message = data[i].message;
-                            var created_at = data[i].created_at;
-                            var id_user = data[i].id_user;
-                            var time = extractTime(data[i].created_at);
-                            var template = null;
-                            if (id_user == <?= $idUser ?>) {
-                                template = `<div class="row message-body">
-                                                <div class="col-sm-12 message-main-sender">
-                                                    <div class="sender">
-                                                        <div class="message-text">
-                                                            ` + message + `
-                                                        </div>
-                                                        <span class="message-time pull-right">
-                                                            ` + time + `
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>`;
-                            } else {
-                                template = `<div class="row message-body">
-                                                <div class="col-sm-12 message-main-receiver">
-                                                    <div class="receiver">
-                                                        <div class="message-text">
-                                                            ` + message + `
-                                                        </div>
-                                                        <span class="message-time pull-right">
-                                                            ` + time + `
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>`
-                            }
-                            $('#conversation').append(template);
-                            $('#messageMobile').append(template);
-                            $('#conversation').scrollTop($('#conversation')[0].scrollHeight);
-                            $('#messageMobile').scrollTop($('#messageMobile')[0].scrollHeight);
-                        }
+                        isLoading = false;
+
+                        var groupedChats = groupChatsByTime(data);
+                        displayGroupedChats(groupedChats);
                     }
                 });
             }
-
-            $('.listChat').on('click', function() {
-                var cId = $(this).attr('user-id');
-                var cName = $(this).attr('user-name');
-                var decUserId = decr(cId);
-                // console.log(decryptedUserId);
-
-                if(window.innerWidth <= 700){
-                    mobileBox.style.display = 'block';
-                }
-
-                if (currentContactId === decUserId) {
-                    return;
-                }
-
-                currentContactId = decUserId;
-
-                $('#conversation').html('');
-                $('#recipientName').html(cName);
-                $('#recipientNameMobile').html(cName);
-                $('#messageMobile').html('');
-
-                $.ajax({
-                    url: "<?= site_url('home/getRoom') ?>",
-                    type: 'GET',
-                    data: {
-                        'contactId': decUserId
-                    },
-                    dataType: 'json',
-                    success: function(data) {
-                        // console.log(data);
-                        roomId = data.id;
-                        getChats();
-                    }
-                });
-            });
 
             function sendMsg(message) {
                 $.ajax({
@@ -344,21 +376,7 @@
                     }
                 });
             }
-
-            $sendButton.on('click', function() {
-                var message = $comment.val().trim();
-                $comment.val('');
-                sendMsg(message);
-                $sendButton.addClass('disabled');
-            });
             
-            $sendButtonMobile.on('click', function() {
-                var message = $commentMobile.val().trim();
-                $commentMobile.val('');
-                sendMsg(message);
-                $sendButtonMobile.addClass('disabled');
-            })
-
             function toggleBtn() {
                 if ($comment.val().trim().length > 0) {
                     $sendButton.removeClass('disabled');
@@ -366,7 +384,7 @@
                     $sendButton.addClass('disabled');
                 }
             }
-
+            
             function toggleBtnMobile() {
                 if ($commentMobile.val().trim().length > 0) {
                     $sendButtonMobile.removeClass('disabled');
@@ -375,19 +393,80 @@
                 }
             }
 
+            $(document).on('click', '.listChat', function() {
+                if (isLoading) {
+                    return;
+                }
+                
+                isLoading = true;
+                
+                $comment.removeClass('disabled');
+                $commentMobile.removeClass('disabled');
+                
+                var cId = $(this).attr('user-id');
+                var cName = $(this).attr('user-name');
+                var decUserId = decr(cId);
+                // console.log(decryptedUserId);
+
+                if(window.innerWidth <= 700){
+                    mobileBox.style.display = 'block';
+                }
+
+                if (currentContactId === decUserId) {
+                    isLoading = false;
+                    return;
+                }
+
+                currentContactId = decUserId;
+
+                $('#conversation').html('');
+                $('#recipientName').html(cName);
+                $('#recipientNameMobile').html(cName);
+                $('#messageMobile').html('');
+
+                $.ajax({
+                    url: "<?= site_url('home/getRoom') ?>",
+                    type: 'GET',
+                    data: {
+                        'contactId': decUserId
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        // console.log(data);
+                        roomId = data.id;
+                        isLoading = false;
+                        getChats();
+                    }
+                });
+            });
+            
+            $sendButton.on('click', function() {
+                var message = $comment.val().trim();
+                $comment.val('');
+                sendMsg(message);
+                $sendButton.addClass('disabled');
+            }), 
+
+            $sendButtonMobile.on('click', function() {
+                var message = $commentMobile.val().trim();
+                $commentMobile.val('');
+                sendMsg(message);
+                $sendButtonMobile.addClass('disabled');
+            }), 
+
             $comment.on('input', function() {
                 toggleBtn();
-            });
+            }), 
 
             $commentMobile.on('input', function() {
                 toggleBtnMobile();
-            });
+            }), 
 
             $('#backButtonMobile').on('click', function() {
-                if(window.innerWidth <= 700){
+                if (window.innerWidth <= 700) {
                     mobileBox.style.display = 'none';
                 }
-            })
+            });
 
         })();
     </script>
