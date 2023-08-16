@@ -299,7 +299,7 @@
                                                 <div class="col-sm-12 message-main-sender">
                                                     <div class="sender">
                                                         <div class="message-text">
-                                                            <img src="` + media + `" alt="Media">
+                                                            <img class="message-media" src="/uploads/` + media + `" alt="Media">
                                                         </div>
                                                         <span class="message-time pull-right">
                                                             ` + time + `
@@ -327,7 +327,7 @@
                                                 <div class="col-sm-12 message-main-receiver">
                                                     <div class="receiver">
                                                         <div class="message-text">
-                                                            <img src="` + media + `" alt="Media">
+                                                            <img class="message-media" src="/uploads/` + media + `" alt="Media">
                                                         </div>
                                                         <span class="message-time pull-right">
                                                             ` + time + `
