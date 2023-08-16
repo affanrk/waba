@@ -280,35 +280,64 @@
                         var id_user = chat.id_user;
                         var time = extractTime(chat.created_at);
                         var template = null;
-                        console.log(message);
-                        console.log(media);
-
-                        if (media === '' && message !== '') {
-                            template = `<div class="row message-body">
-                                            <div class="col-sm-12 message-main-sender">
-                                                <div class="sender">
-                                                    <div class="message-text">
-                                                        ` + message + `
+                        // console.log(message);
+                        // console.log(media);
+                        if (id_user == <?= $idUser ?>) {
+                            if (media === '' && message !== '') {
+                                template = `<div class="row message-body">
+                                                <div class="col-sm-12 message-main-sender">
+                                                    <div class="sender">
+                                                        <div class="message-text">
+                                                            ` + message + `
+                                                        </div>
+                                                        <span class="message-time pull-right">
+                                                            ` + time + `
+                                                        </span>
                                                     </div>
-                                                    <span class="message-time pull-right">
-                                                        ` + time + `
-                                                    </span>
                                                 </div>
-                                            </div>
-                                        </div>`;
-                        } else if (media !== '' && message === '') {
-                            template = `<div class="row message-body">
-                                            <div class="col-sm-12 message-main-sender">
-                                                <div class="sender">
-                                                    <div class="message-text">
-                                                        <img src="` + media + `" alt="Media">
+                                            </div>`;
+                            } else if (media !== '' && message === '') {
+                                template = `<div class="row message-body">
+                                                <div class="col-sm-12 message-main-sender">
+                                                    <div class="sender">
+                                                        <div class="message-text">
+                                                            <img src="` + media + `" alt="Media">
+                                                        </div>
+                                                        <span class="message-time pull-right">
+                                                            ` + time + `
+                                                        </span>
                                                     </div>
-                                                    <span class="message-time pull-right">
-                                                        ` + time + `
-                                                    </span>
                                                 </div>
-                                            </div>
-                                        </div>`;
+                                            </div>`;
+                            }
+                        } else {
+                            if (media === '' && message !== '') {
+                                template = `<div class="row message-body">
+                                                <div class="col-sm-12 message-main-receiver">
+                                                    <div class="receiver">
+                                                        <div class="message-text">
+                                                            ` + message + `
+                                                        </div>
+                                                        <span class="message-time pull-right">
+                                                            ` + time + `
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>`;
+                            } else if (media !== '' && message === '') {
+                                template = `<div class="row message-body">
+                                                <div class="col-sm-12 message-main-receiver">
+                                                    <div class="receiver">
+                                                        <div class="message-text">
+                                                            <img src="` + media + `" alt="Media">
+                                                        </div>
+                                                        <span class="message-time pull-right">
+                                                            ` + time + `
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>`;
+                            }
                         }
 
                         groupTemplate += template;
@@ -374,7 +403,7 @@
                     },
                     dataType: 'json',
                     success: function(data) {
-                        console.log(media);
+                        // console.log(media);
                         const currentTimestamp = new Date();
                         const currentTimeFormatted = extractTime(currentTimestamp);
 

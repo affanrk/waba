@@ -15,7 +15,6 @@ class HomeController extends AuthController
     protected $chatModel;
     protected $encrypter;
     protected $request;
-    protected $upload;
 
     public function __construct()
     {
@@ -25,16 +24,13 @@ class HomeController extends AuthController
         $this->userModel = new UserModel();
         $this->encrypter = Services::encrypter();
         $this->request = Services::request();
-        $this->upload = Services::upload();
     }
 
     public function index()
     {
         $id = $this->getCurrentUserId();
         $user = $this->userModel->find($id);
-        //$allUsers = $this->userModel->where('id !=', $id)->findAll();
         $allUsers = $this->userModel->getAllUsers($id);
-        //var_dump($allUsers);
         $this->addEncryptedIds($allUsers);
         $this->getLastChatData($allUsers, $id);
 
@@ -101,7 +97,7 @@ class HomeController extends AuthController
             $roomId = $this->request->getPost('id_room');
             $userId = $this->getCurrentUserId();
             $media = $this->request->getPost('media'); // Ambil nilai media dari request
-    
+            
             $chat = new Chat();
             $chat->id_room = $roomId;
             $chat->id_user = $userId;
@@ -109,9 +105,9 @@ class HomeController extends AuthController
             $chat->media = $media; // Set nilai media
             $chat->is_active = 1;
             $chat->created_at = date("Y-m-d H:i:s");
-    
+            
             $this->chatModel->save($chat);
-    
+            
             $chatMessage = [
                 'created_at' => $chat->created_at,
                 'message' => $message,
