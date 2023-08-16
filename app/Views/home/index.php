@@ -25,17 +25,9 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('sidebar') ?>
-    <!-- <div class="row searchBox">
-        <div class="col-sm-12 searchBox-inner">
-            <div class="form-group has-feedback">
-                <input id="searchText" type="text" class="form-control" name="searchText" placeholder="Search">
-                <span class="glyphicon glyphicon-search form-control-feedback"></span>
-            </div>
-        </div>
-    </div> -->
     <?php foreach ($allUsers as $u) : ?>
         <div class="row sideBar">
-            <div class="row sideBar-body listChat" user-id='<?= htmlspecialchars($u->encryptedId) ?>' user-name='<?= $u->phone ?> (<?= $u->screen_name ?>)'>
+            <div class="row sideBar-body listChat" user-id='<?= htmlspecialchars($u->encryptedId) ?>' user-phone='<?= $u->phone ?>' user-name='<?= $u->screen_name ?>'>
                 <div class="col-sm-3 col-xs-3 sideBar-avatar">
                     <div class="avatar-icon">
                         <img src="https://bootdey.com/img/Content/avatar/avatar1.png">
@@ -45,7 +37,11 @@
                     <div class="row">
                         <div class="col-sm-8 col-xs-8 sideBar-name">
                             <span class="name-meta">
-                                <?= $u->phone ?> (<?= $u->screen_name ?>)
+                                <?php if ($u->phone === $u->screen_name) {
+                                    echo $u->phone;
+                                } else {
+                                    echo $u->screen_name;
+                                } ?>
                             </span>
                             <p class="last-message small"><?= $u->last_message ?>
                         </div>
@@ -90,14 +86,16 @@
                 </div> -->
     </div>
     <div class="row reply">
-        <!-- <div class="col-sm-1 col-xs-1 reply-emojis">
-            <i class="fa fa-smile-o fa-2x"></i>
-        </div> -->
         <div class="col-sm-9 col-xs-9 reply-main">
             <textarea class="form-control" rows="1" id="commentMobile"></textarea>
         </div>
-        <div class="col-sm-1 col-xs-1 reply-recording">
-            <i class="fa fa-paperclip fa-2x" aria-hidden="true"></i>
+        <div class="col-sm-1 col-xs-1 reply-media" id="send-mediaMobile">
+            <form id="media-form" enctype="multipart/form-data">
+                <label for="media-upload" class="file-label">
+                    <i class="fa fa-paperclip fa-2x" aria-hidden="true"></i>
+                </label>
+                <input type="file" id="media-upload" style="display:none">
+            </form>
         </div>
         <div class="col-sm-1 col-xs-1 reply-send" id='sendMobile'>
             <i class="fa fa-send fa-2x" aria-hidden="true"></i>
@@ -131,44 +129,22 @@
                 </div> -->
     </div>
     <div class="row reply">
-        <!-- <div class="col-sm-1 col-xs-1 reply-emojis">
-            <i class="fa fa-smile-o fa-2x"></i>
-        </div> -->
         <div class="col-sm-9 col-xs-9 reply-main">
             <textarea class="form-control" rows="1" id="comment"></textarea>
         </div>
         <div class="col-sm-1 col-xs-1 reply-media" id="send-media">
-            <i class="fa fa-paperclip fa-2x" aria-hidden="true"></i>
+            <form id="media-form" enctype="multipart/form-data">
+                <label for="media-upload" class="file-label">
+                    <i class="fa fa-paperclip fa-2x" aria-hidden="true"></i>
+                </label>
+                <input type="file" id="media-upload" style="display:none">
+            </form>
         </div>
         <div class="col-sm-1 col-xs-1 reply-send" id='send-message'>
             <i class="fa fa-send fa-2x" aria-hidden="true"></i>
         </div>
     </div>
 <?= $this->endSection() ?>
-
-<!-- <?= $this->section('contact') ?>
-<?php foreach ($allUsers as $u) : ?>
-    <div class="row sideBar-body contact" user-id='<?= htmlspecialchars($u->encryptedId) ?>' user-name='<?= $u->phone ?> (<?= $u->screen_name ?>)'>
-        <div class="col-sm-3 col-xs-3 sideBar-avatar">
-            <div class="avatar-icon">
-                <img src="https://bootdey.com/img/Content/avatar/avatar1.png">
-            </div>
-        </div>
-        <div class="col-sm-9 col-xs-9 sideBar-main">
-            <div class="row">
-                <div class="col-sm-8 col-xs-8 sideBar-name">
-                    <span class="name-meta"> <?= $u->phone ?> (<?= $u->screen_name ?>)
-                    </span>
-                </div>
-                <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
-                    <span class="time-meta pull-right">18:18
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-<?php endforeach; ?>
-<?= $this->endSection() ?> -->
 
 <?= $this->section('script') ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
@@ -182,6 +158,7 @@
             var $commentMobile = $('#commentMobile');
             var $sendButton = $('#send-message');
             var $sendButtonMobile = $('#sendMobile');
+            var $fileInput = $('send-media');
             var mobileBox = document.getElementById('mobileConversation');
 
             $sendButton.addClass('disabled');
@@ -200,19 +177,6 @@
             // function decryptUserId(encryptedId) {
             //     return isBase64(encryptedId) ? atob(encryptedId) : null;
             // }
-
-            function decr(encryptedId) {
-                if (dCache.hasOwnProperty(encryptedId)) {
-                    return Promise.resolve(dCache[encryptedId]);
-                }
-                return $.ajax({
-                    url: '<?= site_url('home/decrypt') ?>',
-                    type: 'POST',
-                    data: {encryptedId: encryptedId},
-                    dataType: 'json',
-                    async: false
-                }).responseJSON.decryptedId;
-            }
 
             function extractTime(timestamp) {
                 const time = new Date(timestamp);
@@ -263,9 +227,9 @@
                     var group;
 
                     if (chatDate === todayDate) {
-                        group = 'today';
+                        group = 'Today';
                     } else if (chatDate === yesterdayFormatted) {
-                        group = 'yesterday';
+                        group = 'Yesterday';
                     } else {
                         var day = parseInt(chatDateComponents[0]).toString();
                         var month = parseInt(chatDateComponents[1]).toString();
@@ -290,10 +254,10 @@
                 $('#conversation').html('');
 
                 var sortedGroups = Object.keys(groupedChats).sort(function(a, b) {
-                    if (a === 'today') return -1; // Tetap pertahankan "Today" di atas
-                    if (b === 'today') return 1;
-                    if (a === 'yesterday') return -1; // Kemudian "Yesterday"
-                    if (b === 'yesterday') return 1;
+                    if (a === 'Today') return -1; // Tetap pertahankan "Today" di atas
+                    if (b === 'Today') return 1;
+                    if (a === 'Yesterday') return -1; // Kemudian "Yesterday"
+                    if (b === 'Yesterday') return 1;
                     return new Date(b) - new Date(a); // Urutan tanggal terbalik (baru ke lama)
                 });
 
@@ -311,12 +275,15 @@
 
                     chatsInGroup.forEach(function(chat) {
                         var message = chat.message;
+                        var media = chat.media; // Assume this is the media URL or null
                         var created_at = chat.created_at;
                         var id_user = chat.id_user;
                         var time = extractTime(chat.created_at);
                         var template = null;
+                        console.log(message);
+                        console.log(media);
 
-                        if (id_user == <?= $idUser ?>) {
+                        if (media === '' && message !== '') {
                             template = `<div class="row message-body">
                                             <div class="col-sm-12 message-main-sender">
                                                 <div class="sender">
@@ -329,19 +296,19 @@
                                                 </div>
                                             </div>
                                         </div>`;
-                        } else {
+                        } else if (media !== '' && message === '') {
                             template = `<div class="row message-body">
-                                            <div class="col-sm-12 message-main-receiver">
-                                                <div class="receiver">
+                                            <div class="col-sm-12 message-main-sender">
+                                                <div class="sender">
                                                     <div class="message-text">
-                                                        ` + message + `
+                                                        <img src="` + media + `" alt="Media">
                                                     </div>
                                                     <span class="message-time pull-right">
                                                         ` + time + `
                                                     </span>
                                                 </div>
                                             </div>
-                                        </div>`
+                                        </div>`;
                         }
 
                         groupTemplate += template;
@@ -378,24 +345,66 @@
                 });
             }
 
-            function sendMsg(message) {
+            $(document).ready(function() {
+                $("#media-upload").change(function() {
+                    var formData = new FormData();
+                    formData.append("media-upload", $(this)[0].files[0]);
+
+                    $.ajax({
+                        url: "<?php echo site_url('home/uploadMedia'); ?>",
+                        type: "POST",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(data) {
+                            sendMsg(null, data.media);
+                        }
+                    });
+                });
+            });
+
+            function sendMsg(message, media) {
                 $.ajax({
                     url: "<?php site_url('home/sendMessage'); ?>",
                     type: 'POST',
                     data: {
                         'message': message,
+                        'media': media,
                         'id_room': roomId,
                     },
                     dataType: 'json',
                     success: function(data) {
-                        // console.log(data);
+                        console.log(media);
                         const currentTimestamp = new Date();
                         const currentTimeFormatted = extractTime(currentTimestamp);
-                        var template = `<div class="row message-body">
+
+                        const lastDisplayedGroup = $('#conversation .previous:last').text().trim();
+
+                        const lastGroupIsToday = lastDisplayedGroup === 'Today';
+                        const currentDate = currentTimestamp.toLocaleDateString('en-GB', {
+                            day: 'numeric',
+                            month: 'numeric',
+                            year: 'numeric'
+                        });
+                        const isNewDay = !lastGroupIsToday && lastDisplayedGroup !== currentDate;
+
+                        if (isNewDay) {
+                            const todayGroupTemplate = `<div class="row message-previous">
+                                                            <div class="col-sm-12 previous">
+                                                                Today
+                                                            </div>
+                                                        </div>`;
+                            $('#conversation').append(todayGroupTemplate);
+                            $('#messageMobile').append(todayGroupTemplate);
+                        }
+
+                        var template = null;
+                        if (message !== null && media === null) {
+                            template = `<div class="row message-body">
                                             <div class="col-sm-12 message-main-sender">
                                                 <div class="sender">
                                                     <div class="message-text">
-                                                        ` + data.message + `
+                                                        ` + message + `
                                                     </div>
                                                     <span class="message-time pull-right">
                                                         ` + currentTimeFormatted + `
@@ -403,12 +412,41 @@
                                                 </div>
                                             </div>
                                         </div>`;
+                        } else if (message === null && media !== null) {
+                            template = `<div class="row message-body">
+                                            <div class="col-sm-12 message-main-sender">
+                                                <div class="sender">
+                                                    <div class="message-text">
+                                                        <img src="` + media + `" alt="Media">
+                                                    </div>
+                                                    <span class="message-time pull-right">
+                                                        ` + currentTimeFormatted + `
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>`;
+                        }
+
                         $('#conversation').append(template);
                         $('#messageMobile').append(template);
+
                         $('#conversation').scrollTop($('#conversation')[0].scrollHeight);
                         $('#messageMobile').scrollTop($('#messageMobile')[0].scrollHeight);
                     }
                 });
+            }
+
+            function decr(encryptedId) {
+                if (dCache.hasOwnProperty(encryptedId)) {
+                    return Promise.resolve(dCache[encryptedId]);
+                }
+                return $.ajax({
+                    url: '<?= site_url('home/decrypt') ?>',
+                    type: 'POST',
+                    data: {encryptedId: encryptedId},
+                    dataType: 'json',
+                    async: false
+                }).responseJSON.decryptedId;
             }
 
             $(document).on('click', '.listChat', function() {
@@ -422,9 +460,11 @@
                 $commentMobile.removeClass('disabled');
                 
                 var cId = $(this).attr('user-id');
+                var cPhone = $(this).attr('user-phone');
                 var cName = $(this).attr('user-name');
+                var displayName = (cPhone === cName) ? cPhone : cName;
                 var decUserId = decr(cId);
-                // console.log(decryptedUserId);
+                // console.log(decUserId);
 
                 if(window.innerWidth <= 700){
                     mobileBox.style.display = 'block';
@@ -438,8 +478,8 @@
                 currentContactId = decUserId;
 
                 $('#conversation').html('');
-                $('#recipientName').html(cName);
-                $('#recipientNameMobile').html(cName);
+                $('#recipientName').html(displayName);
+                $('#recipientNameMobile').html(displayName);
                 $('#messageMobile').html('');
 
                 $.ajax({
@@ -477,14 +517,14 @@
             $sendButton.on('click', function() {
                 var message = $comment.val().trim();
                 $comment.val('');
-                sendMsg(message);
+                sendMsg(message, null);
                 $sendButton.addClass('disabled');
             }), 
 
             $sendButtonMobile.on('click', function() {
                 var message = $commentMobile.val().trim();
                 $commentMobile.val('');
-                sendMsg(message);
+                sendMsg(message, null);
                 $sendButtonMobile.addClass('disabled');
             }), 
 

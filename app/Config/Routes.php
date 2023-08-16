@@ -36,7 +36,13 @@ $routes->get('/home', 'HomeController::index');
 $routes->get('/home/getRoom', 'HomeController::getRoomByUser');
 $routes->get('/home/getChats', 'HomeController::getChatsByRoom');
 
+// $routes->group('/home', function($routes) {
+//     // Menangani pengiriman pesan dan media
+// });
 $routes->post('/home', 'HomeController::sendMessage');
+$routes->post('/home/uploadMedia', 'HomeController::uploadMedia');
+// $routes->post('/home', 'HomeController::sendMessage');
+// $routes->post('/home/sendMedia', 'HomeController::sendMedia');
 $routes->post('/home/decrypt', 'HomeController::decryptUserId');
 
 /*

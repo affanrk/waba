@@ -15,6 +15,7 @@ class HomeController extends AuthController
     protected $chatModel;
     protected $encrypter;
     protected $request;
+    protected $upload;
 
     public function __construct()
     {
@@ -24,14 +25,16 @@ class HomeController extends AuthController
         $this->userModel = new UserModel();
         $this->encrypter = Services::encrypter();
         $this->request = Services::request();
+        $this->upload = Services::upload();
     }
 
     public function index()
     {
         $id = $this->getCurrentUserId();
         $user = $this->userModel->find($id);
-        $allUsers = $this->userModel->where('id !=', $id)->findAll();
-
+        //$allUsers = $this->userModel->where('id !=', $id)->findAll();
+        $allUsers = $this->userModel->getAllUsers($id);
+        //var_dump($allUsers);
         $this->addEncryptedIds($allUsers);
         $this->getLastChatData($allUsers, $id);
 
@@ -73,32 +76,51 @@ class HomeController extends AuthController
         }
     }
 
+    public function uploadMedia()
+    {
+        $media = $this->request->getFile('media-upload');
+        if ($media->isValid() && !$media->hasMoved()) {
+            $randomName = $media->getRandomName();
+            $extension = $media->getExtension();
+            $newName = $randomName . '.' . $extension;
+    
+            $media->move(ROOTPATH . 'public/uploads', $newName);
+            
+            $chatMedia = [
+                'media' => $newName, // Tambahkan media dalam respons
+            ];
+    
+            return $this->response->setJSON($chatMedia);
+        }
+    }
+    
     public function sendMessage()
     {
         if ($this->request->isAJAX()) {
-            date_default_timezone_set('Asia/Jakarta');
             $message = $this->request->getPost('message');
             $roomId = $this->request->getPost('id_room');
             $userId = $this->getCurrentUserId();
-
+            $media = $this->request->getPost('media'); // Ambil nilai media dari request
+    
             $chat = new Chat();
             $chat->id_room = $roomId;
             $chat->id_user = $userId;
             $chat->message = $message;
-            $chat->media = null;
+            $chat->media = $media; // Set nilai media
             $chat->is_active = 1;
             $chat->created_at = date("Y-m-d H:i:s");
-
+    
             $this->chatModel->save($chat);
-
+    
             $chatMessage = [
                 'created_at' => $chat->created_at,
                 'message' => $message,
+                'media' => $media, // Tambahkan media dalam respons
             ];
-
+    
             return $this->response->setJSON($chatMessage);
         }
-    }
+    }    
 
     private function getCurrentUserId()
     {
@@ -117,26 +139,31 @@ class HomeController extends AuthController
         foreach ($allUsers as $u) {
             $otherUserId = $u->id;
             $roomId = $this->chatModel->getRoomId($currentUserId, $otherUserId);
-
+    
             if ($roomId) {
                 $lastMessageData = $this->chatModel->getLastMessage($roomId, $currentUserId, $otherUserId);
                 $message = $lastMessageData->message;
+                $media = $lastMessageData->media;
                 $unformattedTime = $lastMessageData->unformattedTime;
                 $formattedTime = $lastMessageData->formattedTime;
-
-                $limitedMessage = strlen($message) > 20 ? substr($message, 0, 20) . "..." : $message;
-
-                $u->last_message = $limitedMessage;
+    
+                
+                if ($message === '' && $media !== '') {
+                    $u->last_message = 'image';
+                } else if ($media === '') {
+                    $limitedMessage = strlen($message) > 20 ? substr($message, 0, 20) . "..." : $message;
+                    $u->last_message = $limitedMessage;
+                }
                 $u->last_chat_time = $formattedTime;
                 $u->unformatted_last_chat_time = $unformattedTime;
             }
         }
-
-        usort($allUsers, function($a, $b) {
+    
+        usort($allUsers, function ($a, $b) {
             $aTimestamp = strtotime($a->unformatted_last_chat_time);
             $bTimestamp = strtotime($b->unformatted_last_chat_time);
             return $bTimestamp - $aTimestamp;
         });
     }
-
 }
+    

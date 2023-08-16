@@ -42,4 +42,26 @@ class UserModel extends Model
 
         return $user ? $user->id : null;
     }
+
+    public function getAllUsers($userId){
+        /*
+        SELECT c.* 
+        FROM  `room_user` a 
+        JOIN `room_user` b ON a.id_room = b.id_room AND b.id_user != 1
+        JOIN `user` c ON b.id_user = c.id
+        WHERE a.id_user = 1
+        ;
+        */
+
+        $query = $this->db->table('`room_user` a')
+            ->select('c.*')
+            ->join('`room_user` b','a.id_room = b.id_room', 'INNER')
+            ->join('`user` c','b.id_user = c.id AND b.id_user != ' . $userId, 'INNER')
+            ->where('a.id_user', $userId)
+            ->get();
+
+        return $query->getResult();
+
+    }
+
 }
