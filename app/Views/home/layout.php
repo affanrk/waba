@@ -481,6 +481,11 @@
       padding: 5px !important;
     }
 
+    .message-media{
+      max-width: 300px;
+      height: auto;
+    }
+
     .reply-recording i {
       text-align: center;
       padding: 5px !important;
@@ -565,6 +570,11 @@
         margin-left: 10px !important;
       }
 
+      .message-media{
+        max-width: 150px;
+        height: auto;
+      }
+
       .heading-dot i {
         color: #fff;
         cursor: pointer;
@@ -583,7 +593,7 @@
         padding: 0 8px !important;
       }
 
-      .avatar-icon img {
+      .avatar-icon{
         height: 55px;
         width: 55px;
       }

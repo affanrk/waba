@@ -28,12 +28,10 @@
     <?php foreach ($allUsers as $u) : ?>
         <div class="row sideBar">
             <div class="row sideBar-body listChat" user-id='<?= htmlspecialchars($u->encryptedId) ?>' user-phone='<?= $u->phone ?>' user-name='<?= $u->screen_name ?>'>
-                <div class="col-sm-3 col-xs-3 sideBar-avatar">
-                    <div class="avatar-icon">
-                        <img src="https://bootdey.com/img/Content/avatar/avatar1.png">
-                    </div>
+                <div style="display:flex;justify-content:center;align-items:center;" class="col-sm-1 col-xs-1 sideBar-avatar">
+                    <span style="width:25px;height:25px;display:block;background-color:#eee;border-radius:100%;"></span>
                 </div>
-                <div class="col-sm-9 col-xs-9 sideBar-main">
+                <div class="col-sm-11 col-xs-11 sideBar-main">
                     <div class="row">
                         <div class="col-sm-8 col-xs-8 sideBar-name">
                             <span class="name-meta">
@@ -45,7 +43,7 @@
                             </span>
                             <p class="last-message small"><?= $u->last_message ?>
                         </div>
-                        <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
+                        <div class="col-sm-3 col-xs-3 pull-right sideBar-time">
                             <span class="time-meta pull-right">
                                 <?php echo $u->last_chat_time ?: "No chat history"; ?>
                             </span>
@@ -301,7 +299,7 @@
                                             <div class="col-sm-12 message-main-sender">
                                                 <div class="sender">
                                                     <div class="message-text">
-                                                        <img src="` + media + `" alt="Media">
+                                                        <img class="message-media" src="/uploads/` + media + `" alt="Media">
                                                     </div>
                                                     <span class="message-time pull-right">
                                                         ` + time + `
@@ -417,7 +415,7 @@
                                             <div class="col-sm-12 message-main-sender">
                                                 <div class="sender">
                                                     <div class="message-text">
-                                                        <img src="` + media + `" alt="Media">
+                                                        <img class="message-media" src="/uploads/` + media + `" alt="Media">
                                                     </div>
                                                     <span class="message-time pull-right">
                                                         ` + currentTimeFormatted + `
