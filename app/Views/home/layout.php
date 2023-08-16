@@ -445,6 +445,16 @@
       pointer-events: none;
     }
 
+    #send-media.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    #send-mediaMobile.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
     #comment.disabled {
       opacity: 0.5;
       pointer-events: none;
