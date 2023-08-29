@@ -148,12 +148,15 @@
             var $comment = $('#comment');
             var $commentMobile = $('#commentMobile');
             var $sendButton = $('#send-message');
+            var $sendMediaButton = $('#send-media');
+            var $sendMediaMobileButton = $('#send-mediaMobile');
             var $sendButtonMobile = $('#sendMobile');
-            var $fileInput = $('send-media');
             var mobileBox = document.getElementById('mobileConversation');
 
             $sendButton.addClass('disabled');
             $sendButtonMobile.addClass('disabled');
+            $sendMediaButton.addClass('disabled');
+            $sendMediaMobileButton.addClass('disabled');
             $comment.addClass('disabled');
             $commentMobile.addClass('disabled');
 
@@ -245,10 +248,10 @@
                 $('#conversation').html('');
 
                 var sortedGroups = Object.keys(groupedChats).sort(function(a, b) {
-                    if (a === 'Today') return -1; // Tetap pertahankan "Today" di atas
-                    if (b === 'Today') return 1;
-                    if (a === 'Yesterday') return -1; // Kemudian "Yesterday"
-                    if (b === 'Yesterday') return 1;
+                    if (a === 'Today') return 1; // Tetap pertahankan "Today" di atas
+                    if (b === 'Today') return -1;
+                    if (a === 'Yesterday') return 1; // Kemudian "Yesterday"
+                    if (b === 'Yesterday') return -1;
                     return new Date(b) - new Date(a); // Urutan tanggal terbalik (baru ke lama)
                 });
 
@@ -271,42 +274,71 @@
                         var id_user = chat.id_user;
                         var time = extractTime(chat.created_at);
                         var template = null;
-                        console.log(message);
-                        console.log(media);
-
-                        if (media === '' && message !== '') {
-                            template = `<div class="row message-body">
-                                            <div class="col-sm-12 message-main-sender">
-                                                <div class="sender">
-                                                    <div class="message-text">
-                                                        ` + message + `
+                        // console.log(message);
+                        // console.log(media);
+                        if (id_user == <?= $idUser ?>) {
+                            if (media === '' && message !== '') {
+                                template = `<div class="row message-body">
+                                                <div class="col-sm-12 message-main-sender">
+                                                    <div class="sender">
+                                                        <div class="message-text">
+                                                            ` + message + `
+                                                        </div>
+                                                        <span class="message-time pull-right">
+                                                            ` + time + `
+                                                        </span>
                                                     </div>
-                                                    <span class="message-time pull-right">
-                                                        ` + time + `
-                                                    </span>
                                                 </div>
-                                            </div>
-                                        </div>`;
-                        } else if (media !== '' && message === '') {
-                            template = `<div class="row message-body">
-                                            <div class="col-sm-12 message-main-sender">
-                                                <div class="sender">
-                                                    <div class="message-text">
-                                                        <img class="message-media" src="/uploads/` + media + `" alt="Media">
+                                            </div>`;
+                            } else if (media !== '' && message === '') {
+                                template = `<div class="row message-body">
+                                                <div class="col-sm-12 message-main-sender">
+                                                    <div class="sender">
+                                                        <div class="message-text">
+                                                            <img class="message-media" src="/uploads/` + media + `" alt="Media">
+                                                        </div>
+                                                        <span class="message-time pull-right">
+                                                            ` + time + `
+                                                        </span>
                                                     </div>
-                                                    <span class="message-time pull-right">
-                                                        ` + time + `
-                                                    </span>
                                                 </div>
-                                            </div>
-                                        </div>`;
+                                            </div>`;
+                            }
+                        } else {
+                            if (media === '' && message !== '') {
+                                template = `<div class="row message-body">
+                                                <div class="col-sm-12 message-main-receiver">
+                                                    <div class="receiver">
+                                                        <div class="message-text">
+                                                            ` + message + `
+                                                        </div>
+                                                        <span class="message-time pull-right">
+                                                            ` + time + `
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>`;
+                            } else if (media !== '' && message === '') {
+                                template = `<div class="row message-body">
+                                                <div class="col-sm-12 message-main-receiver">
+                                                    <div class="receiver">
+                                                        <div class="message-text">
+                                                            <img class="message-media" src="/uploads/` + media + `" alt="Media">
+                                                        </div>
+                                                        <span class="message-time pull-right">
+                                                            ` + time + `
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>`;
+                            }
                         }
 
                         groupTemplate += template;
                     });
                     
-                    $('#conversation').prepend(groupTemplate);
-                    $('#messageMobile').prepend(groupTemplate);
+                    $('#conversation').append(groupTemplate);
+                    $('#messageMobile').append(groupTemplate);
                     $('#conversation').scrollTop($('#conversation')[0].scrollHeight);
                     $('#messageMobile').scrollTop($('#messageMobile')[0].scrollHeight);
                 });
@@ -365,7 +397,7 @@
                     },
                     dataType: 'json',
                     success: function(data) {
-                        console.log(media);
+                        // console.log(media);
                         const currentTimestamp = new Date();
                         const currentTimeFormatted = extractTime(currentTimestamp);
 
@@ -447,6 +479,8 @@
                 
                 isLoading = true;
                 
+                $sendMediaButton.removeClass('disabled');
+                $sendMediaMobileButton.removeClass('disabled');
                 $comment.removeClass('disabled');
                 $commentMobile.removeClass('disabled');
                 
@@ -492,16 +526,20 @@
             function toggleBtn() {
                 if ($comment.val().trim().length > 0) {
                     $sendButton.removeClass('disabled');
+                    $sendMediaButton.addClass('disabled');
                 } else {
                     $sendButton.addClass('disabled');
+                    $sendMediaButton.removeClass('disabled');
                 }
             }
             
             function toggleBtnMobile() {
                 if ($commentMobile.val().trim().length > 0) {
                     $sendButtonMobile.removeClass('disabled');
+                    $sendMediaMobileButton.addClass('disabled');
                 } else {
                     $sendButtonMobile.addClass('disabled');
+                    $sendMediaMobileButton.removeClass('disabled');
                 }
             }
             
@@ -510,6 +548,7 @@
                 $comment.val('');
                 sendMsg(message, null);
                 $sendButton.addClass('disabled');
+                $sendMediaButton.removeClass('disabled');
             }), 
 
             $sendButtonMobile.on('click', function() {
@@ -517,6 +556,7 @@
                 $commentMobile.val('');
                 sendMsg(message, null);
                 $sendButtonMobile.addClass('disabled');
+                $sendMediaMobileButton.removeClass('disabled');
             }), 
 
             $comment.on('input', function() {
