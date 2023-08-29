@@ -2,13 +2,8 @@
 
 <?= $this->section('heading-sidebar') ?>
     <div class="row heading">
-        <div class="col-sm-3 col-xs-3 heading-avatar">
-            <div class="heading-avatar-icon">
-                <img src="https://bootdey.com/img/Content/avatar/avatar1.png">
-            </div>
-        </div>
         <div class="col-sm-3 col-xs-3 heading-user-info">
-            <p><?= $user->phone ?> (<?= $user->screen_name ?>)</p>
+            <p>Intellix</p>
         </div>
         <div class="col-sm-3 col-xs-3 heading-dot pull-right">
             <a href="<?= base_url('logout') ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to logout?')">
@@ -28,10 +23,10 @@
     <?php foreach ($allUsers as $u) : ?>
         <div class="row sideBar">
             <div class="row sideBar-body listChat" user-id='<?= htmlspecialchars($u->encryptedId) ?>' user-phone='<?= $u->phone ?>' user-name='<?= $u->screen_name ?>'>
-                <div style="display:flex;justify-content:center;align-items:center;" class="col-sm-1 col-xs-1 sideBar-avatar">
+                <div style="display:flex;justify-content:center;align-items:center;" class="col-sm-1 col-xs-2 sideBar-avatar">
                     <span style="width:25px;height:25px;display:block;background-color:#eee;border-radius:100%;"></span>
                 </div>
-                <div class="col-sm-11 col-xs-11 sideBar-main">
+                <div class="col-sm-11 col-xs-10 sideBar-main">
                     <div class="row">
                         <div class="col-sm-8 col-xs-8 sideBar-name">
                             <span class="name-meta">
@@ -43,7 +38,7 @@
                             </span>
                             <p class="last-message small"><?= $u->last_message ?>
                         </div>
-                        <div class="col-sm-3 col-xs-3 pull-right sideBar-time">
+                        <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
                             <span class="time-meta pull-right">
                                 <?php echo $u->last_chat_time ?: "No chat history"; ?>
                             </span>
@@ -70,9 +65,6 @@
             </a>
             <span class="heading-online">Online</span>
         </div>
-        <div class="col-sm-1 col-xs-1  heading-dot pull-right">
-            <i class="fa fa-ellipsis-v fa-2x  pull-right" aria-hidden="true"></i>
-        </div>
     </div>
     <div class="row message" id="messageMobile">
         <!-- <div class="row message-previous">
@@ -87,16 +79,18 @@
         <div class="col-sm-9 col-xs-9 reply-main">
             <textarea class="form-control" rows="1" id="commentMobile"></textarea>
         </div>
-        <div class="col-sm-1 col-xs-1 reply-media" id="send-mediaMobile">
-            <form id="media-form" enctype="multipart/form-data">
-                <label for="media-upload" class="file-label">
-                    <i class="fa fa-paperclip fa-2x" aria-hidden="true"></i>
-                </label>
-                <input type="file" id="media-upload" style="display:none">
-            </form>
-        </div>
-        <div class="col-sm-1 col-xs-1 reply-send" id='sendMobile'>
-            <i class="fa fa-send fa-2x" aria-hidden="true"></i>
+        <div style="display:flex;justify-content:space-evenly;align-items:center;" class="col-sm-3 col-xs-3">
+            <div class="reply-media" id="send-mediaMobile">
+                <form id="media-form" enctype="multipart/form-data">
+                    <label for="media-upload" class="file-label">
+                        <i class="fa fa-paperclip fa-2x" aria-hidden="true"></i>
+                    </label>
+                    <input type="file" id="media-upload" style="display:none">
+                </form>
+            </div>
+            <div class="reply-send" id='sendMobile'>
+                <i class="fa fa-send fa-2x" aria-hidden="true"></i>
+            </div>
         </div>
     </div>
 <?= $this->endSection() ?>
@@ -113,9 +107,6 @@
             </a>
             <span class="heading-online">Online</span>
         </div>
-        <div class="col-sm-1 col-xs-1  heading-dot pull-right">
-            <i class="fa fa-ellipsis-v fa-2x  pull-right" aria-hidden="true"></i>
-        </div>
     </div>
     <div class="row message" id="conversation">
         <!-- <div class="row message-previous">
@@ -126,20 +117,22 @@
                     </div>
                 </div> -->
     </div>
-    <div class="row reply">
-        <div class="col-sm-9 col-xs-9 reply-main">
+    <div style="align-items:center;align-content:center;" class="row reply">
+        <div class="col-sm-10 col-xs-10 reply-main">
             <textarea class="form-control" rows="1" id="comment"></textarea>
         </div>
-        <div class="col-sm-1 col-xs-1 reply-media" id="send-media">
-            <form id="media-form" enctype="multipart/form-data">
-                <label for="media-upload" class="file-label">
-                    <i class="fa fa-paperclip fa-2x" aria-hidden="true"></i>
-                </label>
-                <input type="file" id="media-upload" style="display:none">
-            </form>
-        </div>
-        <div class="col-sm-1 col-xs-1 reply-send" id='send-message'>
-            <i class="fa fa-send fa-2x" aria-hidden="true"></i>
+        <div style="display:flex;justify-content:space-evenly;align-items:center;" class="col-sm-2 col-xs-2">
+            <div class="reply-media" id="send-media">
+                <form id="media-form" enctype="multipart/form-data">
+                    <label for="media-upload" class="file-label">
+                        <i class="fa fa-paperclip fa-2x" aria-hidden="true"></i>
+                    </label>
+                    <input type="file" id="media-upload" style="display:none">
+                </form>
+            </div>
+            <div class="reply-send" id='send-message'>
+                <i class="fa fa-send fa-2x" aria-hidden="true"></i>
+            </div>
         </div>
     </div>
 <?= $this->endSection() ?>
